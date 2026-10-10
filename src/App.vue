@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, defineAsyncComponent, nextTick, onMounted, ref } from 'vue'
 import initialProfile from '../content/profile.json'
 import Icon from './components/Icon.vue'
 
@@ -8,6 +8,10 @@ const menuOpen = ref(false)
 const expandedJob = ref('jost')
 const activeSection = ref('inicio')
 const chatOpen = ref(false)
+const chatLoaded = ref(false)
+const chatAvailability = ref('unknown')
+const launcher = ref(null)
+const ChatPanel = defineAsyncComponent(() => import('./components/ChatPanel.vue'))
 const year = new Date().getFullYear()
 const navigation = computed(() => [
   { id: 'sobre', label: 'Sobre' },
@@ -16,11 +20,25 @@ const navigation = computed(() => [
   { id: 'contato', label: 'Contato' },
 ])
 
+async function openChat() {
+  chatLoaded.value = true
+  chatOpen.value = true
+}
+
+async function closeChat() {
+  chatOpen.value = false
+  await nextTick()
+  launcher.value?.focus({ preventScroll: true })
+}
+
 onMounted(async () => {
   try {
     const response = await fetch('/api/v1/profile')
-    if (response.ok) profile.value = (await response.json()).profile
-  } catch { /* O conteúdo também está incluído no build. */ }
+    if (!response.ok) throw new Error('offline')
+    const data = await response.json()
+    profile.value = data.profile
+    chatAvailability.value = data.chatAvailable ? 'ready' : 'unconfigured'
+  } catch { chatAvailability.value = 'offline' }
   const observer = new IntersectionObserver(entries => {
     for (const entry of entries) if (entry.isIntersecting) activeSection.value = entry.target.id
   }, { rootMargin: '-15% 0px -60% 0px' })
@@ -176,5 +194,6 @@ onMounted(async () => {
   </main>
 
   <footer class="site-footer wrap"><a class="wordmark" href="#inicio">h.milech<span> /</span></a><span>Feito com café, curiosidade e Vue.</span><span>© {{ year }} {{ profile.shortName }}</span><a href="#inicio" aria-label="Voltar ao início"><Icon name="arrow-up" /></a></footer>
-  <button class="chat-launcher" aria-label="Abrir conversa com Bit, o assistente do portfólio" @click="chatOpen = !chatOpen"><span class="bit-icon" aria-hidden="true"><i></i><i></i></span><span>Conheça o Bit <span class="launcher-star">✳</span></span></button>
+  <button v-show="!chatOpen" ref="launcher" class="chat-launcher" aria-label="Abrir conversa com Bit, o assistente do portfólio" aria-controls="bit-chat" :aria-expanded="chatOpen" @click="openChat"><span class="bit-icon" aria-hidden="true"><i></i><i></i></span><span>Conheça o Bit <span class="launcher-star">✳</span></span></button>
+  <ChatPanel v-if="chatLoaded" v-show="chatOpen" :open="chatOpen" :availability="chatAvailability" @close="closeChat" />
 </template>
