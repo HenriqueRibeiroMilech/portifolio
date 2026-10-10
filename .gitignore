@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.venv/
+__pycache__/
+.pytest_cache/
+.env
+.env.*
+!.env.example
+*.pdf
+INSTRUCAO.md
+foto.jpg
+tmp/
+*.log

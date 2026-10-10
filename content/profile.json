@@ -1,0 +1,92 @@
+{
+  "name": "Henrique Ribeiro Milech",
+  "shortName": "Henrique Milech",
+  "role": "Desenvolvedor de software",
+  "location": "Caxias do Sul, RS",
+  "summary": "Desenvolvo aplicações web, conecto sistemas e uso dados e inteligência artificial para resolver problemas do dia a dia. Hoje, faço parte da área de Transformação Digital da JOST Brasil.",
+  "about": [
+    "Minha trajetória começou na fabricação mecânica, entre projetos técnicos e máquinas CNC. Depois, troquei os percursos de usinagem pelos caminhos do desenvolvimento de software.",
+    "Passei por aplicações web em Django e Laravel, contato com clientes e levantamento de requisitos. Hoje, na JOST Brasil, trabalho com Python, Flask, Vue.js e SQL Server, aproximando software, dados e inteligência artificial dos processos da empresa.",
+    "Curso Engenharia de Software na UCS e tenho interesse em Inteligência Artificial e Machine Learning. Gosto de entender o problema antes de escolher a tecnologia."
+  ],
+  "mainTechnologies": ["Python", "Flask", "Vue.js", "SQL Server"],
+  "experience": [
+    {
+      "id": "jost",
+      "company": "JOST Brasil",
+      "role": "Analista de inteligência de dados",
+      "area": "Transformação Digital",
+      "start": "2026-07",
+      "end": null,
+      "period": "jul. 2026 — atual",
+      "description": "Software, dados e IA aplicados aos processos corporativos.",
+      "highlights": [
+        "Desenvolvimento e modernização de aplicações corporativas, incluindo o DigitalJost, com Python, Flask, Vue.js, TypeScript e SQL Server.",
+        "Integrações com soluções de IA corporativa e automação de fluxos de trabalho.",
+        "Consultas SQL, integração de dados, dashboards e monitoramento de informações operacionais."
+      ],
+      "technologies": ["Python", "Flask", "Vue.js", "TypeScript", "SQL Server"]
+    },
+    {
+      "id": "trailblazer",
+      "company": "Trailblazer",
+      "role": "Desenvolvedor de software",
+      "area": "Desenvolvimento Full Stack",
+      "start": "2024-08",
+      "end": "2026-07",
+      "period": "ago. 2024 — jul. 2026",
+      "description": "Aplicações web e sistemas de gerenciamento, do requisito à implementação.",
+      "highlights": [
+        "Desenvolvimento e manutenção de aplicações em Python com Django e PHP com Laravel.",
+        "Contato com clientes, levantamento de requisitos, dashboards e interfaces de gestão.",
+        "Participação em integrações com modelos de linguagem e melhorias de usabilidade e desempenho."
+      ],
+      "technologies": ["Python", "Django", "PHP", "Laravel", "LLMs"]
+    },
+    {
+      "id": "arte-de-gato",
+      "company": "Arte de Gato",
+      "role": "Projetista de CNC Router",
+      "area": "Projetos & fabricação",
+      "start": "2022-06",
+      "end": "2024-02",
+      "period": "jun. 2022 — fev. 2024",
+      "description": "O começo de tudo: transformar projetos em peças de verdade.",
+      "highlights": [
+        "Projetos técnicos e programação de percursos de usinagem em ArtCAM para peças em MDF.",
+        "Preparação de máquinas CNC Router, otimização de processos e controle de qualidade."
+      ],
+      "technologies": ["ArtCAM", "CNC Router", "Projetos técnicos"]
+    }
+  ],
+  "projects": [
+    {
+      "id": "digitaljost",
+      "name": "DigitalJost",
+      "category": "Aplicação corporativa",
+      "organization": "JOST Brasil",
+      "description": "Desenvolvimento, manutenção e evolução de uma aplicação corporativa. Meu trabalho inclui modernização da arquitetura, novas funcionalidades e melhorias na organização e escalabilidade do sistema.",
+      "role": "Desenvolvimento e modernização de sistemas",
+      "technologies": ["Python", "Flask", "Vue.js", "TypeScript", "SQL Server"],
+      "image": null,
+      "repository": null,
+      "demo": null
+    }
+  ],
+  "skills": [
+    { "name": "Do banco à interface", "label": "Desenvolvimento", "items": ["Python", "Flask", "Vue.js", "TypeScript", "Django", "PHP", "Laravel", "SQL Server"] },
+    { "name": "Dados que fazem sentido", "label": "Dados & inteligência artificial", "items": ["SQL", "Análise de dados", "Integração de LLMs", "Machine Learning", "Deep Learning", "TensorFlow", "Scikit-learn"] },
+    { "name": "Além da linguagem", "label": "No dia a dia", "items": ["Levantamento de requisitos", "Integração de sistemas", "Automação de processos", "Dashboards", "Modernização de aplicações"] }
+  ],
+  "education": [
+    { "institution": "Universidade de Caxias do Sul", "shortName": "UCS", "degree": "Bacharelado em Engenharia de Software", "period": "mar. 2023 — dez. 2027 (previsão)", "ongoing": true },
+    { "institution": "IFRS · Campus Caxias do Sul", "shortName": "IFRS", "degree": "Técnico em Fabricação Mecânica", "period": "fev. 2019 — dez. 2022", "ongoing": false }
+  ],
+  "certifications": ["Machine Learning Specialization", "Inteligência Artificial", "Bootcamp Bradesco — GenAI, Dados & Cyber", "Formação em C# e .NET", "Excel + SQL + Power BI + IA"],
+  "languages": [{ "name": "Português", "level": "Nativo / bilíngue" }, { "name": "Inglês", "level": "Proficiência profissional" }],
+  "contact": {
+    "email": "devhenriquemilech@gmail.com",
+    "linkedin": "https://www.linkedin.com/in/henrique-milech/",
+    "github": null
+  }
+}
