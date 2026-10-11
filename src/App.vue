@@ -1,7 +1,8 @@
 <script setup>
-import { computed, defineAsyncComponent, nextTick, onMounted, ref } from 'vue'
+import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import initialProfile from '../content/profile.json'
 import Icon from './components/Icon.vue'
+import { isInReadingPosition, navigationTarget } from './navigation.js'
 
 const profile = ref(initialProfile)
 const menuOpen = ref(false)
@@ -12,6 +13,9 @@ const chatLoaded = ref(false)
 const chatAvailability = ref('unknown')
 const launcher = ref(null)
 const ChatPanel = defineAsyncComponent(() => import('./components/ChatPanel.vue'))
+const previousPosition = ref(null)
+const navigationNotice = ref('')
+let highlightTimer, observer, highlightedElement
 const year = new Date().getFullYear()
 const navigation = computed(() => [
   { id: 'sobre', label: 'Sobre' },
@@ -31,6 +35,41 @@ async function closeChat() {
   launcher.value?.focus({ preventScroll: true })
 }
 
+function guideNavigation(reply) {
+  const targetId = navigationTarget(reply, profile.value)
+  if (!targetId) return
+  const target = document.getElementById(targetId)
+  if (!target) return
+  const top = target.getBoundingClientRect().top
+  if (!isInReadingPosition(top, window.innerHeight)) {
+    previousPosition.value = window.scrollY
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    window.scrollTo({ top: Math.max(0, window.scrollY + top - 40), behavior: reduced ? 'instant' : 'smooth' })
+  }
+  highlightedElement?.classList.remove('guided-highlight')
+  target.classList.add('guided-highlight')
+  highlightedElement = target
+  navigationNotice.value = `Bit destacou ${target.getAttribute('aria-label') || target.querySelector('h2, h3')?.textContent || 'o projeto'}.`
+  clearTimeout(highlightTimer)
+  highlightTimer = setTimeout(() => {
+    target.classList.remove('guided-highlight')
+    navigationNotice.value = ''
+  }, 3200)
+}
+
+function backToReading() {
+  if (previousPosition.value === null) return
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  window.scrollTo({ top: previousPosition.value, behavior: reduced ? 'instant' : 'smooth' })
+  previousPosition.value = null
+  highlightedElement?.classList.remove('guided-highlight')
+}
+
+onBeforeUnmount(() => {
+  observer?.disconnect()
+  clearTimeout(highlightTimer)
+})
+
 onMounted(async () => {
   try {
     const response = await fetch('/api/v1/profile')
@@ -39,7 +78,8 @@ onMounted(async () => {
     profile.value = data.profile
     chatAvailability.value = data.chatAvailable ? 'ready' : 'unconfigured'
   } catch { chatAvailability.value = 'offline' }
-  const observer = new IntersectionObserver(entries => {
+  await nextTick()
+  observer = new IntersectionObserver(entries => {
     for (const entry of entries) if (entry.isIntersecting) activeSection.value = entry.target.id
   }, { rootMargin: '-15% 0px -60% 0px' })
   document.querySelectorAll('main section[id]').forEach(section => observer.observe(section))
@@ -195,5 +235,6 @@ onMounted(async () => {
 
   <footer class="site-footer wrap"><a class="wordmark" href="#inicio">h.milech<span> /</span></a><span>Feito com café, curiosidade e Vue.</span><span>© {{ year }} {{ profile.shortName }}</span><a href="#inicio" aria-label="Voltar ao início"><Icon name="arrow-up" /></a></footer>
   <button v-show="!chatOpen" ref="launcher" class="chat-launcher" aria-label="Abrir conversa com Bit, o assistente do portfólio" aria-controls="bit-chat" :aria-expanded="chatOpen" @click="openChat"><span class="bit-icon" aria-hidden="true"><i></i><i></i></span><span>Conheça o Bit <span class="launcher-star">✳</span></span></button>
-  <ChatPanel v-if="chatLoaded" v-show="chatOpen" :open="chatOpen" :availability="chatAvailability" @close="closeChat" />
+  <ChatPanel v-if="chatLoaded" v-show="chatOpen" :open="chatOpen" :availability="chatAvailability" :has-previous="previousPosition !== null" @close="closeChat" @navigate="guideNavigation" @back="backToReading" />
+  <p class="sr-only" role="status">{{ navigationNotice }}</p>
 </template>

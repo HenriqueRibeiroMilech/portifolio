@@ -23,7 +23,7 @@ watch(() => props.open, async open => {
     input.value?.focus({ preventScroll: true })
     scrollHistory()
   }
-})
+}, { immediate: true })
 
 async function scrollHistory() {
   await nextTick()
