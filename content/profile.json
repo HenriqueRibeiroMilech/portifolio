@@ -74,16 +74,63 @@
     }
   ],
   "skills": [
-    { "name": "Do banco à interface", "label": "Desenvolvimento", "items": ["Python", "Flask", "Vue.js", "TypeScript", "Django", "PHP", "Laravel", "SQL Server"] },
-    { "name": "Dados que fazem sentido", "label": "Dados & inteligência artificial", "items": ["SQL", "Análise de dados", "Integração de LLMs", "Machine Learning", "Deep Learning", "TensorFlow", "Scikit-learn"] },
-    { "name": "Além da linguagem", "label": "No dia a dia", "items": ["Levantamento de requisitos", "Integração de sistemas", "Automação de processos", "Dashboards", "Modernização de aplicações"] }
+    {
+      "name": "Do banco à interface",
+      "label": "Desenvolvimento",
+      "items": ["Python", "Flask", "Vue.js", "TypeScript", "Django", "PHP", "Laravel", "SQL Server"]
+    },
+    {
+      "name": "Dados que fazem sentido",
+      "label": "Dados & inteligência artificial",
+      "items": [
+        "SQL",
+        "Análise de dados",
+        "Integração de LLMs",
+        "Machine Learning",
+        "Deep Learning",
+        "TensorFlow",
+        "Scikit-learn"
+      ]
+    },
+    {
+      "name": "Além da linguagem",
+      "label": "No dia a dia",
+      "items": [
+        "Levantamento de requisitos",
+        "Integração de sistemas",
+        "Automação de processos",
+        "Dashboards",
+        "Modernização de aplicações"
+      ]
+    }
   ],
   "education": [
-    { "institution": "Universidade de Caxias do Sul", "shortName": "UCS", "degree": "Bacharelado em Engenharia de Software", "period": "mar. 2023 — dez. 2027 (previsão)", "ongoing": true },
-    { "institution": "IFRS · Campus Caxias do Sul", "shortName": "IFRS", "degree": "Técnico em Fabricação Mecânica", "period": "fev. 2019 — dez. 2022", "ongoing": false }
+    {
+      "institution": "Universidade de Caxias do Sul",
+      "shortName": "UCS",
+      "degree": "Bacharelado em Engenharia de Software",
+      "period": "mar. 2023 — dez. 2027 (previsão)",
+      "ongoing": true
+    },
+    {
+      "institution": "IFRS · Campus Caxias do Sul",
+      "shortName": "IFRS",
+      "degree": "Técnico em Fabricação Mecânica",
+      "period": "fev. 2019 — dez. 2022",
+      "ongoing": false
+    }
   ],
-  "certifications": ["Machine Learning Specialization", "Inteligência Artificial", "Bootcamp Bradesco — GenAI, Dados & Cyber", "Formação em C# e .NET", "Excel + SQL + Power BI + IA"],
-  "languages": [{ "name": "Português", "level": "Nativo / bilíngue" }, { "name": "Inglês", "level": "Proficiência profissional" }],
+  "certifications": [
+    "Machine Learning Specialization",
+    "Inteligência Artificial",
+    "Bootcamp Bradesco — GenAI, Dados & Cyber",
+    "Formação em C# e .NET",
+    "Excel + SQL + Power BI + IA"
+  ],
+  "languages": [
+    { "name": "Português", "level": "Nativo / bilíngue" },
+    { "name": "Inglês", "level": "Proficiência profissional" }
+  ],
   "contact": {
     "email": "devhenriquemilech@gmail.com",
     "linkedin": "https://www.linkedin.com/in/henrique-milech/",
