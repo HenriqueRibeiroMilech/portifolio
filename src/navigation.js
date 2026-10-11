@@ -7,11 +7,13 @@ export function navigationTarget(reply, profile) {
     return allowed.includes(reply.target) ? reply.target : null
   }
   if (reply.action === 'highlight_project') {
-    return profile.projects.some(project => `projeto-${project.id}` === reply.target) ? reply.target : null
+    return profile.projects.some((project) => `projeto-${project.id}` === reply.target)
+      ? reply.target
+      : null
   }
   return null
 }
 
 export function isInReadingPosition(top, viewportHeight) {
-  return top >= 25 && top <= Math.min(viewportHeight * .3, 220)
+  return top >= 25 && top <= Math.min(viewportHeight * 0.3, 220)
 }

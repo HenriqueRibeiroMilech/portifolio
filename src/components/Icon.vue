@@ -9,7 +9,8 @@ const paths = {
   menu: 'M4 7h16M4 17h16',
   pin: 'M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0ZM15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z',
   code: 'm8 7-5 5 5 5m8-10 5 5-5 5m-3-14-2 18',
-  database: 'M20 5c0 2-4 3-8 3S4 7 4 5s4-3 8-3 8 1 8 3Zm0 0v14c0 2-4 3-8 3s-8-1-8-3V5m0 7c0 2 4 3 8 3s8-1 8-3',
+  database:
+    'M20 5c0 2-4 3-8 3S4 7 4 5s4-3 8-3 8 1 8 3Zm0 0v14c0 2-4 3-8 3s-8-1-8-3V5m0 7c0 2 4 3 8 3s8-1 8-3',
   window: 'M3 3h18v18H3ZM3 8h18M7 5.5h.1m3 0h.1',
   asterisk: 'M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7',
   spark: 'm12 2 3 7 7 3-7 3-3 7-3-7-7-3 7-3Z',
@@ -21,5 +22,17 @@ const paths = {
 </script>
 
 <template>
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="paths[name] || paths.spark" /></svg>
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path :d="paths[name] || paths.spark" />
+  </svg>
 </template>
