@@ -1,34 +1,28 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import * as THREE from 'three'
-import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js'
 
-const props = defineProps({
-  state: { type: String, default: 'idle' },
-  paused: Boolean,
-})
+const props = defineProps({ state: { type: String, default: 'idle' }, paused: Boolean })
 const stage = ref(null)
 const failed = ref(false)
-const waving = ref(false)
-let renderer, scene, camera, resizeObserver, frame, waveTimeout
+const excited = ref(false)
+let renderer, scene, camera, resizeObserver, frame, reactionTimer
 let lastFrame = 0
 let pointerX = 0
 let pointerY = 0
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
 
-function wave() {
-  waving.value = true
-  clearTimeout(waveTimeout)
-  waveTimeout = setTimeout(() => {
-    waving.value = false
-  }, 1500)
+function react() {
+  excited.value = true
+  clearTimeout(reactionTimer)
+  reactionTimer = setTimeout(() => { excited.value = false }, 1500)
 }
 
 function followPointer(event) {
   if (!stage.value) return
   const rect = stage.value.getBoundingClientRect()
-  pointerX = (event.clientX - rect.left) / rect.width - 0.5
-  pointerY = (event.clientY - rect.top) / rect.height - 0.5
+  pointerX = (event.clientX - rect.left) / rect.width - .5
+  pointerY = (event.clientY - rect.top) / rect.height - .5
 }
 
 function resetPointer() {
@@ -39,57 +33,48 @@ function resetPointer() {
 onMounted(() => {
   try {
     scene = new THREE.Scene()
-    camera = new THREE.PerspectiveCamera(35, 1, 0.1, 30)
-    camera.position.set(2.3, 1.3, 7.5)
-    camera.lookAt(0, 0.05, 0)
-    renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: true,
-      powerPreference: 'low-power',
-    })
+    camera = new THREE.PerspectiveCamera(35, 1, .1, 30)
+    camera.position.set(.7, .5, 6.6)
+    camera.lookAt(0, 0, 0)
+    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' })
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
     renderer.setClearColor(0x000000, 0)
-    renderer.outputColorSpace = THREE.SRGBColorSpace
     stage.value.appendChild(renderer.domElement)
     renderer.domElement.setAttribute('aria-hidden', 'true')
-    renderer.domElement.addEventListener('webglcontextlost', (event) => {
+    renderer.domElement.addEventListener('webglcontextlost', event => {
       event.preventDefault()
       failed.value = true
       cancelAnimationFrame(frame)
     })
 
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x84986e, 2.6))
-    const key = new THREE.DirectionalLight(0xfff9dc, 4)
-    key.position.set(-3, 5, 5)
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x587143, 2))
+    const key = new THREE.DirectionalLight(0xfff7da, 3.1)
+    key.position.set(-3, 4, 5)
     scene.add(key)
-    const rim = new THREE.DirectionalLight(0xccefff, 2.3)
-    rim.position.set(4, 2, -3)
+    const rim = new THREE.DirectionalLight(0xc5e7ff, 3)
+    rim.position.set(3, 2, -4)
     scene.add(rim)
 
-    const lime = new THREE.MeshPhysicalMaterial({
-      color: 0xc8eb54,
-      roughness: 0.3,
-      metalness: 0.08,
-      clearcoat: 0.7,
-    })
-    const dark = new THREE.MeshStandardMaterial({
-      color: 0x202e24,
-      roughness: 0.3,
-    })
-    const cream = new THREE.MeshStandardMaterial({
-      color: 0xf5f5dc,
-      roughness: 0.4,
-    })
-    const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0xe0ff8b })
-    const robot = new THREE.Group()
-    scene.add(robot)
+    const lime = new THREE.MeshPhysicalMaterial({ color: 0xc7e969, roughness: .3, metalness: .08, clearcoat: .8, clearcoatRoughness: .15 })
+    const ink = new THREE.MeshStandardMaterial({ color: 0x263b2c, roughness: .22 })
+    const cream = new THREE.MeshStandardMaterial({ color: 0xfff4d5, roughness: .28 })
+    const peach = new THREE.MeshStandardMaterial({ color: 0xf5a87a, roughness: .45 })
+    const gold = new THREE.MeshStandardMaterial({ color: 0xc6aa68, metalness: .55, roughness: .3 })
 
-    function box(width, height, depth, radius, material, parent, x = 0, y = 0, z = 0) {
-      const mesh = new THREE.Mesh(new RoundedBoxGeometry(width, height, depth, 3, radius), material)
-      mesh.position.set(x, y, z)
-      parent.add(mesh)
-      return mesh
+    function starGeometry(radius, depth, segments = 48) {
+      const geometry = new THREE.SphereGeometry(radius, segments, 32)
+      const vertices = geometry.attributes.position
+      for (let i = 0; i < vertices.count; i++) {
+        const x = vertices.getX(i), y = vertices.getY(i), z = vertices.getZ(i)
+        const angle = Math.atan2(y, x)
+        const edge = Math.hypot(x, y) / radius
+        const lobes = .86 + .22 * Math.cos(5 * angle - Math.PI / 2) * edge
+        vertices.setXYZ(i, x * lobes, y * lobes, z * depth)
+      }
+      geometry.computeVertexNormals()
+      return geometry
     }
+
     function sphere(radius, material, parent, x, y, z, scale = [1, 1, 1]) {
       const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 24, 16), material)
       mesh.position.set(x, y, z)
@@ -98,50 +83,43 @@ onMounted(() => {
       return mesh
     }
 
-    const head = new THREE.Group()
-    head.position.y = 0.55
-    robot.add(head)
-    box(1.85, 1.35, 1.12, 0.32, lime, head)
-    box(1.47, 0.76, 0.15, 0.22, dark, head, 0, -0.01, 0.59)
-    const eyes = [-0.33, 0.33].map((x) =>
-      box(0.15, 0.31, 0.06, 0.07, eyeMaterial, head, x, 0.05, 0.69),
-    )
-    sphere(0.1, lime, head, 0, 1.1, 0)
-    box(0.055, 0.4, 0.055, 0.02, dark, head, 0, 0.87)
-    sphere(0.19, dark, head, -1, 0, 0, [0.6, 1, 1])
-    sphere(0.19, dark, head, 1, 0, 0, [0.6, 1, 1])
-    box(0.31, 0.05, 0.05, 0.02, eyeMaterial, head, 0, -0.21, 0.69)
+    const character = new THREE.Group()
+    scene.add(character)
+    const body = new THREE.Mesh(starGeometry(1.12, .57), lime)
+    character.add(body)
 
-    box(0.5, 0.18, 0.5, 0.07, dark, robot, 0, -0.22)
-    box(1.05, 0.75, 0.75, 0.22, lime, robot, 0, -0.67)
-    box(0.4, 0.3, 0.055, 0.07, cream, robot, 0, -0.65, 0.39)
-    box(0.12, 0.12, 0.04, 0.03, dark, robot, 0, -0.65, 0.43)
-    const leftArm = new THREE.Group()
-    const rightArm = new THREE.Group()
-    leftArm.position.set(-0.75, -0.42, 0)
-    rightArm.position.set(0.75, -0.42, 0)
-    robot.add(leftArm, rightArm)
-    sphere(0.18, dark, leftArm, 0, 0, 0)
-    sphere(0.18, dark, rightArm, 0, 0, 0)
-    box(0.33, 0.55, 0.38, 0.16, lime, leftArm, -0.1, -0.25)
-    box(0.33, 0.55, 0.38, 0.16, lime, rightArm, 0.1, -0.25)
-    for (const x of [-0.32, 0.32]) {
-      box(0.2, 0.23, 0.25, 0.07, dark, robot, x, -1.12)
-      box(0.43, 0.25, 0.63, 0.1, cream, robot, x, -1.27, 0.12)
-    }
-
-    const shadow = new THREE.Mesh(
-      new THREE.CircleGeometry(0.85, 48),
-      new THREE.MeshBasicMaterial({
-        color: 0x35452b,
-        transparent: true,
-        opacity: 0.09,
-        depthWrite: false,
-      }),
+    const face = new THREE.Group()
+    face.position.set(0, -.02, .62)
+    character.add(face)
+    const eyes = [-.27, .27].map(x => {
+      const eye = sphere(.105, ink, face, x, .12, .015, [.85, 1.45, .5])
+      sphere(.025, cream, eye, -.024, .043, .09)
+      return eye
+    })
+    for (const x of [-.44, .44]) sphere(.105, peach, face, x, -.16, -.02, [1.2, .5, .2])
+    const smile = new THREE.QuadraticBezierCurve3(
+      new THREE.Vector3(-.13, -.14, .06),
+      new THREE.Vector3(0, -.31, .09),
+      new THREE.Vector3(.13, -.14, .06),
     )
+    const mouth = new THREE.Mesh(new THREE.TubeGeometry(smile, 16, .024, 8, false), ink)
+    face.add(mouth)
+
+    const orbit = new THREE.Group()
+    orbit.rotation.set(.85, -.3, -.2)
+    character.add(orbit)
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(1.49, .012, 8, 96), gold)
+    orbit.add(ring)
+    const moons = [cream, peach].map((material, index) => {
+      const moon = new THREE.Mesh(starGeometry(index ? .13 : .23, .8, 24), material)
+      orbit.add(moon)
+      return moon
+    })
+
+    const shadow = new THREE.Mesh(new THREE.CircleGeometry(.8, 40), new THREE.MeshBasicMaterial({ color: 0x1e3323, transparent: true, opacity: .1, depthWrite: false }))
     shadow.rotation.x = -Math.PI / 2
-    shadow.position.y = -1.52
-    shadow.scale.set(1.2, 0.65, 1)
+    shadow.position.y = -1.45
+    shadow.scale.set(1.15, .5, 1)
     scene.add(shadow)
 
     resizeObserver = new ResizeObserver(() => {
@@ -161,26 +139,29 @@ onMounted(() => {
       const still = props.paused || reducedMotion.matches
       const thinking = props.state === 'thinking'
       const speaking = props.state === 'speaking'
-      const happy = props.state === 'success' || waving.value
-      robot.position.y = still ? 0 : Math.sin(t * 2.2) * 0.07
-      robot.rotation.y = still ? -0.12 : -0.12 + pointerX * 0.45 + Math.sin(t * 1.1) * 0.08
-      head.rotation.z = still
-        ? -0.06
-        : thinking
-          ? Math.sin(t * 3) * 0.12
-          : happy
-            ? Math.sin(t * 7) * 0.08
-            : -0.06
-      head.rotation.x = still ? 0 : pointerY * 0.15
-      const blink = !still && Math.sin(t * 1.1) > 0.993
-      for (const eye of eyes) {
-        eye.scale.y = blink ? 0.12 : thinking && !still ? 0.65 + Math.sin(t * 5) * 0.2 : 1
-        eye.position.x +=
-          ((eye.position.x < 0 ? -0.33 : 0.33) + (still ? 0 : pointerX * 0.1) - eye.position.x) *
-          0.1
+      const happy = props.state === 'success' || excited.value
+      const motion = still ? 0 : t
+
+      character.position.y = Math.sin(motion * 2) * .09
+      character.rotation.y = still ? -.1 : -.1 + pointerX * .45
+      character.rotation.x = still ? 0 : pointerY * .15
+      character.rotation.z = still ? -.08 : happy ? Math.sin(t * 8) * .18 : Math.sin(t * 1.4) * .06 - .08
+      const squash = still ? 1 : happy ? 1 + Math.sin(t * 8) * .05 : 1
+      body.scale.set(1 / squash, squash, 1)
+      const blink = !still && Math.sin(t * 1.2) > .994
+      for (const [index, eye] of eyes.entries()) {
+        eye.scale.y = blink ? .16 : thinking && !still ? 1 + Math.sin(t * 4 + index) * .3 : 1.45
+        eye.position.x = (index ? .27 : -.27) + (still ? 0 : pointerX * .08)
+        eye.position.y = thinking && !still ? .19 : .12
       }
-      rightArm.rotation.z = !still && happy ? 2.2 + Math.sin(t * 10) * 0.3 : -0.12
-      leftArm.rotation.z = still ? 0.12 : speaking ? 0.25 + Math.sin(t * 9) * 0.15 : 0.12
+      mouth.scale.y = speaking && !still ? 1 + Math.sin(t * 10) * .3 : 1
+      orbit.rotation.z = -.2 + motion * (thinking ? .8 : .2)
+      moons.forEach((moon, index) => {
+        const angle = (still ? .65 : motion * .35 + .65) + index * 2.8
+        moon.position.set(Math.cos(angle) * 1.49, Math.sin(angle) * 1.49, 0)
+        moon.rotation.z = -angle
+      })
+      shadow.scale.x = 1.15 - Math.sin(motion * 2) * .05
       renderer.render(scene, camera)
     }
     animate(0)
@@ -190,12 +171,12 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  clearTimeout(waveTimeout)
+  clearTimeout(reactionTimer)
   cancelAnimationFrame(frame)
   resizeObserver?.disconnect()
-  scene?.traverse((object) => {
+  scene?.traverse(object => {
     object.geometry?.dispose()
-    if (object.material) object.material.dispose()
+    object.material?.dispose()
   })
   renderer?.dispose()
   renderer?.forceContextLoss()
@@ -203,58 +184,17 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <button
-    class="mascot-stage"
-    :class="{ 'mascot-fallback': failed }"
-    aria-label="Fazer o Bit acenar"
-    @click="wave"
-    @pointermove="followPointer"
-    @pointerleave="resetPointer"
-  >
-    <span v-if="failed" class="fallback-content">
-      <span class="bit-icon" aria-hidden="true">
-        <i></i>
-        <i></i>
-      </span>
-      <small>Bit em modo leve</small>
-    </span>
+  <button class="mascot-stage" aria-label="Interagir com o Bit" @click="react" @pointermove="followPointer" @pointerleave="resetPointer">
+    <span v-if="failed" class="fallback-content"><span class="bit-icon" aria-hidden="true"><i></i><i></i></span><small>Bit em modo leve</small></span>
     <span v-else ref="stage" class="mascot-canvas"></span>
   </button>
 </template>
 
 <style scoped>
-.mascot-stage {
-  width: 100%;
-  height: 190px;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  display: block;
-  position: relative;
-}
-.mascot-canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-.fallback-content {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 30px;
-}
-.fallback-content .bit-icon {
-  transform: scale(2);
-}
-.fallback-content small {
-  font-size: 10px;
-  color: var(--muted);
-}
-@media (max-height: 700px) {
-  .mascot-stage {
-    height: 130px;
-  }
-}
+.mascot-stage { width: 100%; height: var(--mascot-height, 190px); padding: 0; background: transparent; border: 0; display: block; position: relative; }
+.mascot-canvas { display: block; width: 100%; height: 100%; }
+.fallback-content { height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 30px; }
+.fallback-content .bit-icon { transform: scale(2); }
+.fallback-content small { font-size: 10px; color: var(--muted); }
+@media (max-height: 700px) { .mascot-stage { height: var(--mascot-height, 130px); } }
 </style>
