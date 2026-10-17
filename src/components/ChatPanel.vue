@@ -57,7 +57,7 @@ async function scrollHistory() {
 
 function navigate(reply) {
   emit('navigate', reply)
-  if (window.matchMedia('(max-width: 600px)').matches) compact.value = true
+  if (window.matchMedia('(max-width: 720px)').matches) compact.value = true
 }
 
 async function send(question = draft.value) {
@@ -568,7 +568,7 @@ onBeforeUnmount(() => {
     transform: translateY(-3px);
   }
 }
-@media (max-width: 600px) {
+@media (max-width: 720px) {
   .chat-form textarea {
     font-size: 16px;
   }

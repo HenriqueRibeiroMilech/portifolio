@@ -1632,7 +1632,7 @@ h2 em {
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 720px) {
   .wrap,
   .site-header {
     width: calc(100% - 40px);

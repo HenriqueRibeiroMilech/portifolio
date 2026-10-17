@@ -48,7 +48,6 @@ async function syncPage() {
   const id = window.location.hash.slice(1)
   const nextPage =
     id === 'certificados' && profile.value.certifications.length ? 'certificados' : 'portfolio'
-  if (page.value === nextPage) return
   page.value = nextPage
   menuOpen.value = false
   activeSection.value = id || 'inicio'
