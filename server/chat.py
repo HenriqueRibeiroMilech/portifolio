@@ -7,7 +7,7 @@ from typing import Literal
 from openai import OpenAI
 from pydantic import BaseModel, ConfigDict, Field
 
-SECTIONS = {'inicio', 'sobre', 'experiencia', 'habilidades', 'formacao', 'contato'}
+SECTIONS = {'inicio', 'assistente', 'sobre', 'experiencia', 'habilidades', 'formacao', 'contato'}
 
 
 class Message(BaseModel):
@@ -31,6 +31,8 @@ class Reply(BaseModel):
 
 def allowed_targets(profile):
     sections = SECTIONS | ({'projetos'} if profile['projects'] else set())
+    if profile.get('certifications'):
+        sections = sections | {'certificados'}
     projects = {f"projeto-{project['id']}" for project in profile['projects']}
     return sections, projects
 

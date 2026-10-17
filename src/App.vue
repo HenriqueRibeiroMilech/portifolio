@@ -2,6 +2,7 @@
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import initialProfile from '../content/profile.json'
 import Icon from './components/Icon.vue'
+import Certificates from './components/Certificates.vue'
 import { isInReadingPosition, navigationTarget } from './navigation.js'
 
 const profile = ref(initialProfile)
@@ -11,22 +12,52 @@ const activeSection = ref('inicio')
 const chatOpen = ref(false)
 const chatLoaded = ref(false)
 const chatAvailability = ref('unknown')
+const page = ref('portfolio')
+const chatRequest = ref(null)
+const mascotAnchor = ref(null)
+const mascotVisible = ref(false)
 const launcher = ref(null)
 const ChatPanel = defineAsyncComponent(() => import('./components/ChatPanel.vue'))
+const Mascot = defineAsyncComponent(() => import('./components/Mascot.vue'))
 const previousPosition = ref(null)
 const navigationNotice = ref('')
-let highlightTimer, observer, highlightedElement
+let highlightTimer, observer, mascotObserver, highlightedElement
 const year = new Date().getFullYear()
 const navigation = computed(() => [
   { id: 'sobre', label: 'Sobre' },
   ...(profile.value.projects.length ? [{ id: 'projetos', label: 'Projetos' }] : []),
-  { id: 'experiencia', label: 'Trajetória' },
+  { id: 'experiencia', label: 'Experiência' },
+  ...(profile.value.certifications.length ? [{ id: 'certificados', label: 'Certificados' }] : []),
   { id: 'contato', label: 'Contato' },
 ])
 
-async function openChat() {
+async function openChat(question) {
   chatLoaded.value = true
   chatOpen.value = true
+  if (typeof question === 'string' && question.trim()) {
+    chatRequest.value = { text: question, id: Date.now() }
+  }
+}
+
+function observeSections() {
+  observer?.disconnect()
+  document.querySelectorAll('main section[id]').forEach((section) => observer?.observe(section))
+}
+
+async function syncPage() {
+  const id = window.location.hash.slice(1)
+  const nextPage = id === 'certificados' && profile.value.certifications.length ? 'certificados' : 'portfolio'
+  if (page.value === nextPage) return
+  page.value = nextPage
+  menuOpen.value = false
+  activeSection.value = id || 'inicio'
+  await nextTick()
+  observeSections()
+  if (!id || id === 'inicio' || id === 'certificados') {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  } else {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'instant' })
+  }
 }
 
 async function closeChat() {
@@ -35,9 +66,19 @@ async function closeChat() {
   launcher.value?.focus({ preventScroll: true })
 }
 
-function guideNavigation(reply) {
+async function guideNavigation(reply) {
   const targetId = navigationTarget(reply, profile.value)
   if (!targetId) return
+  const savedPosition = { y: window.scrollY, page: page.value, hash: window.location.hash }
+  const nextPage = targetId === 'certificados' ? 'certificados' : 'portfolio'
+  const changedPage = page.value !== nextPage
+  if (changedPage) {
+    page.value = nextPage
+    window.history.replaceState(null, '', `#${targetId}`)
+    await nextTick()
+    observeSections()
+    previousPosition.value = savedPosition
+  }
   const target = document.getElementById(targetId)
   if (!target) return
   const top = target.getBoundingClientRect().top
@@ -47,7 +88,7 @@ function guideNavigation(reply) {
     !isInReadingPosition(top, window.innerHeight) &&
     Math.abs(destination - window.scrollY) > 24
   ) {
-    previousPosition.value = window.scrollY
+    if (!changedPage) previousPosition.value = savedPosition
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     window.scrollTo({
       top: destination,
@@ -57,7 +98,7 @@ function guideNavigation(reply) {
   highlightedElement?.classList.remove('guided-highlight')
   target.classList.add('guided-highlight')
   highlightedElement = target
-  const title = target.querySelector('h2, h3')?.innerText.replace(/\s+/g, ' ') || 'o projeto'
+  const title = target.querySelector('h1, h2, h3')?.innerText.replace(/\s+/g, ' ') || 'a seção'
   navigationNotice.value = `Bit destacou: ${title}`
   clearTimeout(highlightTimer)
   highlightTimer = setTimeout(() => {
@@ -66,11 +107,16 @@ function guideNavigation(reply) {
   }, 3200)
 }
 
-function backToReading() {
+async function backToReading() {
   if (previousPosition.value === null) return
+  const previous = previousPosition.value
+  page.value = previous.page
+  window.history.replaceState(null, '', previous.hash || window.location.pathname)
+  await nextTick()
+  observeSections()
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   window.scrollTo({
-    top: previousPosition.value,
+    top: previous.y,
     behavior: reduced ? 'instant' : 'smooth',
   })
   previousPosition.value = null
@@ -79,10 +125,18 @@ function backToReading() {
 
 onBeforeUnmount(() => {
   observer?.disconnect()
+  mascotObserver?.disconnect()
+  window.removeEventListener('hashchange', syncPage)
   clearTimeout(highlightTimer)
 })
 
 onMounted(async () => {
+  window.addEventListener('hashchange', syncPage)
+  await syncPage()
+  mascotObserver = new IntersectionObserver(([entry]) => {
+    mascotVisible.value = entry.isIntersecting
+  }, { rootMargin: '100px' })
+  if (mascotAnchor.value) mascotObserver.observe(mascotAnchor.value)
   try {
     const response = await fetch('/api/v1/profile')
     if (!response.ok) throw new Error('offline')
@@ -99,7 +153,7 @@ onMounted(async () => {
     },
     { rootMargin: '-15% 0px -60% 0px' },
   )
-  document.querySelectorAll('main section[id]').forEach((section) => observer.observe(section))
+  observeSections()
 })
 </script>
 
@@ -107,8 +161,7 @@ onMounted(async () => {
   <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
   <header class="site-header" @keydown.esc="menuOpen = false">
     <a class="wordmark" href="#inicio" aria-label="Henrique Milech, início">
-      h.milech
-      <span>/</span>
+      {{ profile.shortName }}
     </a>
     <nav class="desktop-nav" aria-label="Navegação principal">
       <a
@@ -151,33 +204,29 @@ onMounted(async () => {
   </header>
 
   <main id="conteudo">
+    <div v-show="page === 'portfolio'">
     <section id="inicio" class="hero wrap" aria-labelledby="hero-title">
       <div class="hero-copy">
         <p class="eyebrow">
           <span class="status-dot"></span>
-          SOFTWARE, DADOS & UM POUCO DE CURIOSIDADE
+          DESENVOLVIMENTO FULL STACK & INTELIGÊNCIA ARTIFICIAL
         </p>
         <p class="hello">
-          Oi, eu sou o {{ profile.shortName.split(' ')[0] }}
-          <span class="wave" aria-hidden="true">✳</span>
+          {{ profile.shortName }}
         </p>
         <h1 id="hero-title">
-          Ideias que
+          Desenvolvedor
           <br />
-          viram
-          <em>código.</em>
+          de <em>software.</em>
         </h1>
         <p class="hero-description">{{ profile.summary }}</p>
         <div class="hero-actions">
-          <a
-            class="button button-dark"
-            :href="profile.projects.length ? '#projetos' : '#experiencia'"
-          >
-            {{ profile.projects.length ? 'Conheça meu trabalho' : 'Conheça minha trajetória' }}
-            <Icon name="arrow-down-right" />
-          </a>
-          <a class="text-link" href="#sobre">
-            Um pouco sobre mim
+          <button class="button button-dark" @click="openChat">
+            Testar assistente de IA
+            <Icon name="spark" />
+          </button>
+          <a class="text-link" href="#experiencia">
+            Ver experiência
             <Icon name="arrow-down" />
           </a>
         </div>
@@ -185,7 +234,6 @@ onMounted(async () => {
       <div class="portrait-area">
         <span class="portrait-orbit" aria-hidden="true"></span>
         <span class="portrait-star" aria-hidden="true">✳</span>
-        <span class="code-sticker" aria-hidden="true">&lt;olá, mundo /&gt;</span>
         <figure class="portrait">
           <img
             src="/henrique.jpg"
@@ -195,7 +243,7 @@ onMounted(async () => {
             fetchpriority="high"
           />
           <figcaption>
-            <span>{{ profile.shortName.split(' ')[0] }}, prazer :)</span>
+            <span>{{ profile.role }}</span>
             <span aria-hidden="true">↗</span>
           </figcaption>
         </figure>
@@ -203,32 +251,40 @@ onMounted(async () => {
           <Icon name="pin" />
           <span>
             {{ profile.location }}
-            <br />
-            <small>da serra para a web.</small>
           </span>
         </div>
-        <span class="photo-note">
-          esse sou eu, fora do terminal
-          <svg viewBox="0 0 75 35" aria-hidden="true">
-            <path d="M3 6Q40 45 68 8m-12 1 13-3-2 13" />
-          </svg>
-        </span>
       </div>
       <div class="hero-foot">
-        <span>DESENVOLVEDOR. CURIOSO POR NATUREZA.</span>
+        <span>PYTHON · FLASK · VUE.JS · SQL</span>
         <a href="#sobre">
-          Continue explorando
+          Sobre mim
           <Icon name="arrow-down" />
         </a>
       </div>
     </section>
 
+    <section id="assistente" class="ai-invitation wrap" aria-labelledby="assistant-title" tabindex="-1">
+      <div ref="mascotAnchor" class="ai-character">
+        <Mascot v-if="mascotVisible && !chatOpen" />
+        <span v-else class="ai-preview-symbol" aria-hidden="true"><Icon name="spark" /></span>
+        <span class="character-caption">BIT · ASSISTENTE DE IA</span>
+      </div>
+      <div class="ai-invitation-copy">
+        <p class="eyebrow"><span class="status-dot"></span> EXPERIMENTE A IA DO PORTFÓLIO</p>
+        <h2 id="assistant-title">Pergunte sobre minha experiência.</h2>
+        <p>O Bit responde sobre meus projetos, tecnologias e certificados, e mostra a seção certa enquanto você conversa.</p>
+        <div class="ai-invitation-actions">
+          <button class="button button-lime" @click="openChat">Conversar com a IA <Icon name="arrow-up-right" /></button>
+          <button class="ai-question" @click="openChat('Como o Henrique usa IA no trabalho?')">“Como você usa IA no trabalho?” <Icon name="arrow-up-right" /></button>
+        </div>
+      </div>
+    </section>
+
     <div class="tech-strip" aria-label="Tecnologias principais">
       <div class="wrap">
-        <span class="strip-label">MEU DIA A DIA TEM</span>
+        <span class="strip-label">TECNOLOGIAS PRINCIPAIS</span>
         <span v-for="tech in profile.mainTechnologies" :key="tech">{{ tech }}</span>
         <span class="strip-flower" aria-hidden="true">✳</span>
-        <span class="strip-end">e vontade de aprender.</span>
       </div>
     </div>
 
@@ -239,25 +295,19 @@ onMounted(async () => {
       tabindex="-1"
     >
       <div class="section-intro">
-        <p class="eyebrow">01 / QUEM ESTÁ POR AQUI</p>
+        <p class="eyebrow">01 / SOBRE MIM</p>
         <h2 id="about-title">
-          Antes do código,
+          Desenvolvimento,
           <br />
-          vem a
-          <em>curiosidade.</em>
+          dados e <em>IA.</em>
         </h2>
-        <div class="about-doodle" aria-hidden="true">
-          <span>{</span>
-          <span class="doodle-star">✳</span>
-          <span>}</span>
-        </div>
       </div>
       <div class="about-copy">
         <p v-for="paragraph in profile.about" :key="paragraph">
           {{ paragraph }}
         </p>
         <a class="text-link" href="#experiencia">
-          Veja como cheguei até aqui
+          Minha experiência profissional
           <Icon name="arrow-down-right" />
         </a>
       </div>
@@ -273,16 +323,15 @@ onMounted(async () => {
       <div class="wrap">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">02 / DA IDEIA À APLICAÇÃO</p>
+            <p class="eyebrow">02 / PROJETOS</p>
             <h2 id="projects-title">
-              Código em
-              <em>ação.</em>
+              Projetos
             </h2>
           </div>
           <p>
-            Um recorte do que
+            Aplicações em que
             <br />
-            ajudo a construir.
+            atuo no desenvolvimento.
           </p>
         </div>
         <article
@@ -326,7 +375,7 @@ onMounted(async () => {
                   {{ project.name }}
                   <b>.</b>
                 </span>
-                <small>SOFTWARE QUE CONECTA.</small>
+                <small>APLICAÇÃO CORPORATIVA</small>
               </div>
             </template>
           </div>
@@ -386,18 +435,17 @@ onMounted(async () => {
     >
       <div class="section-heading">
         <div>
-          <p class="eyebrow">03 / O CAMINHO ATÉ AQUI</p>
+          <p class="eyebrow">03 / EXPERIÊNCIA</p>
           <h2 id="experience-title">
-            Uma coisa levou
+            Experiência
             <br />
-            à
-            <em>outra.</em>
+            <em>profissional.</em>
           </h2>
         </div>
         <p>
-          Da fabricação mecânica
+          Desenvolvimento, dados
           <br />
-          à transformação digital.
+          e integração de sistemas.
         </p>
       </div>
       <div class="timeline">
@@ -405,13 +453,13 @@ onMounted(async () => {
           v-for="job in profile.experience"
           :key="job.id"
           class="job"
-          :class="{ 'job-current': !job.end }"
+          :class="{ 'job-current': !job.end, 'job-secondary': !job.company }"
         >
           <div class="job-time">
             <span>{{ job.period }}</span>
             <span v-if="!job.end" class="current-label">
               <span class="status-dot"></span>
-              POR AQUI AGORA
+              ATUAL
             </span>
           </div>
           <div class="job-body">
@@ -423,10 +471,10 @@ onMounted(async () => {
             >
               <span>
                 <span class="job-company">
-                  {{ job.company }}
+                  {{ job.company || job.role }}
                   <span v-if="!job.end" class="small-arrow" aria-hidden="true">↗</span>
                 </span>
-                <span class="job-title">{{ job.role }}</span>
+                <span v-if="job.company" class="job-title">{{ job.role }}</span>
               </span>
               <span class="expand-icon" aria-hidden="true">
                 {{ expandedJob === job.id ? '−' : '+' }}
@@ -457,12 +505,11 @@ onMounted(async () => {
       <div class="wrap">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">04 / MINHA CAIXA DE FERRAMENTAS</p>
+            <p class="eyebrow">04 / HABILIDADES</p>
             <h2 id="skills-title">
-              Cada problema,
+              Tecnologias e
               <br />
-              uma
-              <em>possibilidade.</em>
+              <em>competências.</em>
             </h2>
           </div>
           <span class="skills-star" aria-hidden="true">✳</span>
@@ -475,6 +522,7 @@ onMounted(async () => {
             </div>
             <p class="eyebrow">{{ group.label }}</p>
             <h3>{{ group.name }}</h3>
+            <p v-if="group.description" class="skill-description">{{ group.description }}</p>
             <ul class="tags">
               <li v-for="item in group.items" :key="item">{{ item }}</li>
             </ul>
@@ -490,11 +538,11 @@ onMounted(async () => {
       tabindex="-1"
     >
       <div class="section-intro">
-        <p class="eyebrow">05 / SEM PARAR DE APRENDER</p>
+        <p class="eyebrow">05 / FORMAÇÃO</p>
         <h2 id="education-title">
-          Sempre em
+          Formação
           <br />
-          <em>construção.</em>
+          <em>acadêmica.</em>
         </h2>
         <div class="language-list">
           <p v-for="language in profile.languages" :key="language.name">
@@ -516,16 +564,7 @@ onMounted(async () => {
             </span>
           </div>
         </article>
-        <div v-if="profile.certifications.length" class="certifications">
-          <h3>Também passaram por aqui</h3>
-          <p class="certifications-label">CURSOS & CERTIFICAÇÕES</p>
-          <ul>
-            <li v-for="course in profile.certifications" :key="course">
-              <Icon name="arrow-up-right" />
-              {{ course }}
-            </li>
-          </ul>
-        </div>
+        <a class="text-link certificates-link" href="#certificados">Ver certificados de IA e desenvolvimento <Icon name="arrow-up-right" /></a>
       </div>
     </section>
 
@@ -533,14 +572,11 @@ onMounted(async () => {
       <div class="wrap">
         <p class="eyebrow">
           <span class="status-dot"></span>
-          06 / A PRÓXIMA IDEIA PODE COMEÇAR AQUI
+          06 / CONTATO
         </p>
         <div class="contact-heading">
           <h2 id="contact-title">
-            Vamos fazer
-            <br />
-            algo
-            <em>legal?</em>
+            Vamos <em>conversar?</em>
           </h2>
           <a
             v-if="profile.contact.email"
@@ -553,9 +589,9 @@ onMounted(async () => {
         </div>
         <div class="contact-bottom">
           <p>
-            Uma oportunidade, um projeto
+          Desenvolvimento de software,
             <br />
-            ou só uma boa conversa.
+          projetos e oportunidades em IA.
           </p>
           <div class="contact-links">
             <a v-if="profile.contact.email" :href="`mailto:${profile.contact.email}`">
@@ -585,14 +621,15 @@ onMounted(async () => {
         </div>
       </div>
     </section>
+    </div>
+    <Certificates v-if="page === 'certificados'" :certificates="profile.certifications" />
   </main>
 
   <footer class="site-footer wrap">
     <a class="wordmark" href="#inicio">
-      h.milech
-      <span>/</span>
+      {{ profile.shortName }}
     </a>
-    <span>Ainda tem muita ideia pela frente.</span>
+    <span>Desenvolvimento de software & IA</span>
     <span>© {{ year }} {{ profile.shortName }}</span>
     <a href="#inicio" aria-label="Voltar ao início"><Icon name="arrow-up" /></a>
   </footer>
@@ -610,7 +647,7 @@ onMounted(async () => {
       <i></i>
     </span>
     <span>
-      Conheça o Bit
+      Converse com a IA
       <span class="launcher-star">✳</span>
     </span>
   </button>
@@ -619,6 +656,7 @@ onMounted(async () => {
     v-show="chatOpen"
     :open="chatOpen"
     :availability="chatAvailability"
+    :request="chatRequest"
     :has-previous="previousPosition !== null"
     @close="closeChat"
     @navigate="guideNavigation"

@@ -74,7 +74,8 @@ class ApiTests(unittest.TestCase):
 
 class ActionTests(unittest.TestCase):
     def test_valid_sections_and_project(self):
-        for action, target in [('navigate_section', 'experiencia'), ('highlight_project', 'projeto-digitaljost')]:
+        for action, target in [('navigate_section', 'experiencia'), ('navigate_section', 'certificados'),
+                               ('navigate_section', 'assistente'), ('highlight_project', 'projeto-digitaljost')]:
             reply = Reply(message='Veja esta parte.', action=action, target=target)
             self.assertEqual(validate_action(reply, PROFILE), reply)
 
@@ -88,6 +89,10 @@ class ActionTests(unittest.TestCase):
 
     def test_project_section_is_unavailable_without_projects(self):
         result = validate_action(Reply(message='Resposta.', action='navigate_section', target='projetos'), {**PROFILE, 'projects': []})
+        self.assertEqual(result.action, 'none')
+
+    def test_certificate_page_is_unavailable_without_certificates(self):
+        result = validate_action(Reply(message='Resposta.', action='navigate_section', target='certificados'), {**PROFILE, 'certifications': []})
         self.assertEqual(result.action, 'none')
 
     def test_arbitrary_actions_and_malformed_output_are_rejected(self):

@@ -3,11 +3,11 @@
   "shortName": "Henrique Milech",
   "role": "Desenvolvedor de software",
   "location": "Caxias do Sul, RS",
-  "summary": "Desenvolvo aplicações web, conecto sistemas e uso dados e inteligência artificial para resolver problemas do dia a dia. Hoje, faço parte da área de Transformação Digital da JOST Brasil.",
+  "summary": "Desenvolvedor full stack com experiência em Python, Flask, Vue.js e SQL Server. Trabalho com aplicações web, integração de sistemas e inteligência artificial na área de Transformação Digital da JOST Brasil.",
   "about": [
-    "Minha trajetória começou na fabricação mecânica, entre projetos técnicos e máquinas CNC. Depois, troquei os percursos de usinagem pelos caminhos do desenvolvimento de software.",
-    "Passei por aplicações web em Django e Laravel, contato com clientes e levantamento de requisitos. Hoje, na JOST Brasil, trabalho com Python, Flask, Vue.js e SQL Server, aproximando software, dados e inteligência artificial dos processos da empresa.",
-    "Curso Engenharia de Software na UCS e tenho interesse em Inteligência Artificial e Machine Learning. Gosto de entender o problema antes de escolher a tecnologia."
+    "Atuo no desenvolvimento de aplicações web, da análise de requisitos à implementação de funcionalidades e integrações. Minha experiência inclui Python com Django e Flask, PHP com Laravel, Vue.js e bancos de dados SQL.",
+    "Na JOST Brasil, desenvolvo e modernizo sistemas corporativos, integro soluções de IA e trabalho com análise de dados e automação de processos. Antes, na Trailblazer, participei do desenvolvimento full stack e de funcionalidades com modelos de linguagem.",
+    "Curso Engenharia de Software na UCS, com conclusão prevista para dezembro de 2027. Tenho interesse em seguir na área de desenvolvimento de software e inteligência artificial, apoiado por estudos em Machine Learning, Deep Learning e IA generativa."
   ],
   "mainTechnologies": ["Python", "Flask", "Vue.js", "SQL Server"],
   "experience": [
@@ -44,17 +44,16 @@
       "technologies": ["Python", "Django", "PHP", "Laravel", "LLMs"]
     },
     {
-      "id": "arte-de-gato",
-      "company": "Arte de Gato",
-      "role": "Projetista de CNC Router",
+      "id": "cnc",
+      "company": null,
+      "role": "Projetista CNC",
       "area": "Projetos & fabricação",
       "start": "2022-06",
       "end": "2024-02",
       "period": "jun. 2022 — fev. 2024",
-      "description": "O começo de tudo: transformar projetos em peças de verdade.",
+      "description": "Projetos técnicos e programação de máquinas CNC Router.",
       "highlights": [
-        "Projetos técnicos e programação de percursos de usinagem em ArtCAM para peças em MDF.",
-        "Preparação de máquinas CNC Router, otimização de processos e controle de qualidade."
+        "Elaboração de projetos técnicos e programação de percursos de usinagem com ArtCAM."
       ],
       "technologies": ["ArtCAM", "CNC Router", "Projetos técnicos"]
     }
@@ -75,13 +74,15 @@
   ],
   "skills": [
     {
-      "name": "Do banco à interface",
+      "name": "Desenvolvimento full stack",
       "label": "Desenvolvimento",
+      "description": "Aplicações web, APIs e bancos de dados.",
       "items": ["Python", "Flask", "Vue.js", "TypeScript", "Django", "PHP", "Laravel", "SQL Server"]
     },
     {
-      "name": "Dados que fazem sentido",
-      "label": "Dados & inteligência artificial",
+      "name": "Inteligência artificial e dados",
+      "label": "Experiência e estudos",
+      "description": "Integrações com LLMs no trabalho e formação em Machine Learning e Deep Learning.",
       "items": [
         "SQL",
         "Análise de dados",
@@ -93,8 +94,9 @@
       ]
     },
     {
-      "name": "Além da linguagem",
-      "label": "No dia a dia",
+      "name": "Engenharia de software",
+      "label": "Aplicação prática",
+      "description": "Do levantamento de requisitos à evolução dos sistemas.",
       "items": [
         "Levantamento de requisitos",
         "Integração de sistemas",
@@ -121,11 +123,42 @@
     }
   ],
   "certifications": [
-    "Machine Learning Specialization",
-    "Inteligência Artificial",
-    "Bootcamp Bradesco — GenAI, Dados & Cyber",
-    "Formação em C# e .NET",
-    "Excel + SQL + Power BI + IA"
+    {
+      "id": "machine-learning",
+      "name": "Machine Learning Specialization",
+      "issuer": "Stanford Online · Coursera",
+      "date": "2026-10-31",
+      "dateLabel": "outubro de 2026",
+      "duration": "3 cursos",
+      "category": "Machine Learning",
+      "description": "Aprendizado supervisionado, redes neurais, árvores de decisão, aprendizado não supervisionado, sistemas de recomendação e aprendizado por reforço.",
+      "image": "/Certificado%20Machine%20Learning.jpg",
+      "topics": ["Machine Learning", "Redes neurais", "Aprendizado supervisionado"]
+    },
+    {
+      "id": "genai",
+      "name": "Bootcamp Bradesco — GenAI, Dados & Cyber",
+      "issuer": "Bradesco · DIO",
+      "date": "2026-07-16",
+      "dateLabel": "julho de 2026",
+      "duration": "52 horas",
+      "category": "Inteligência artificial",
+      "description": "Bootcamp com formação em inteligência artificial generativa, dados e segurança cibernética.",
+      "image": "/Certificado%20GEN%20IA.jpg",
+      "topics": ["IA generativa", "Dados", "Segurança"]
+    },
+    {
+      "id": "csharp-dotnet",
+      "name": "Formação em C# e .NET",
+      "issuer": "Faculdade de Tecnologia Rocketseat",
+      "date": "2026-01-23",
+      "dateLabel": "janeiro de 2026",
+      "duration": "100 horas",
+      "category": "Desenvolvimento",
+      "description": "Curso de extensão em C#: APIs, .NET, Entity Framework, MySQL, autenticação com JWT, SOLID, testes e deploy no Azure.",
+      "image": "/Certificado%20.NET.jpg",
+      "topics": ["C#", ".NET", "APIs", "Testes"]
+    }
   ],
   "languages": [
     { "name": "Português", "level": "Nativo / bilíngue" },

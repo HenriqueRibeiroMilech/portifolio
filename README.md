@@ -35,7 +35,9 @@ Tudo está em `content/profile.json`, usado pelo Vue e pelo Flask. Para adiciona
 
 Recompile depois de mudar conteúdo em produção. O servidor lê o JSON a cada chamada; o frontend também inclui uma cópia no build para funcionar sem a API. Os arquivos brutos do LinkedIn não são publicados nem versionados.
 
-Ainda faltam GitHub, projetos pessoais, imagens/demos públicas e datas/emissores/links dos certificados. O DigitalJost é um trabalho corporativo sem link público; a imagem do card é conceitual.
+Os certificados estão em uma aba própria (`#certificados`). Para acrescentar um, edite `certifications` no JSON com título, emissor, data, descrição e caminho da imagem em `public/`.
+
+Ainda faltam GitHub, projetos pessoais e imagens/demos públicas. O DigitalJost é um trabalho corporativo sem link público; a imagem do card é conceitual.
 
 ## Como o Bit funciona
 

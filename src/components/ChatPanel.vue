@@ -7,6 +7,7 @@ const props = defineProps({
   open: Boolean,
   availability: String,
   hasPrevious: Boolean,
+  request: Object,
 })
 const emit = defineEmits(['close', 'navigate', 'back'])
 const messages = ref([])
@@ -21,11 +22,17 @@ const autoNavigate = ref(true)
 const input = ref(null)
 const history = ref(null)
 const suggestions = [
-  'Qual é a experiência dele?',
-  'Com o que ele trabalha?',
-  'Ele estuda Machine Learning?',
+  'Como ele usa IA no trabalho?',
+  'Quais tecnologias ele utiliza?',
+  'Quais certificados de IA ele tem?',
 ]
 let controller, stateTimeout
+
+watch(() => props.request, async request => {
+  if (!request?.text) return
+  await nextTick()
+  send(request.text)
+}, { immediate: true })
 
 watch(
   () => props.open,
@@ -118,9 +125,9 @@ onBeforeUnmount(() => {
   >
     <header class="chat-header">
       <div>
-        <span class="chat-kicker">UM COMPANHEIRO DE EXPLORAÇÃO</span>
+        <span class="chat-kicker">ASSISTENTE DE IA DO PORTFÓLIO</span>
         <h2 id="chat-title">
-          Esse é o Bit
+          Converse com o Bit
           <span>.</span>
         </h2>
       </div>
@@ -166,8 +173,8 @@ onBeforeUnmount(() => {
       aria-label="Histórico da conversa"
     >
       <div class="chat-welcome">
-        <p>Oi! Sou o Bit, o guia deste portfólio.</p>
-        <p>Posso te contar sobre o Henrique e mostrar onde cada coisa está. Por onde começamos?</p>
+        <p>Sou o Bit, o assistente de IA do Henrique.</p>
+        <p>Pergunte sobre experiência, projetos ou certificados. Além de responder, posso mostrar a seção relacionada.</p>
       </div>
       <div v-if="!messages.length" class="chat-suggestions">
         <button
@@ -183,9 +190,10 @@ onBeforeUnmount(() => {
       <nav v-if="!messages.length" class="chat-shortcuts" aria-label="Atalhos do portfólio">
         <span>OU EXPLORE DIRETO</span>
         <button @click="navigate({ action: 'navigate_section', target: 'experiencia' })">
-          Trajetória
+          Experiência
           <Icon name="arrow-up-right" />
         </button>
+        <button @click="navigate({ action: 'navigate_section', target: 'certificados' })">Certificados <Icon name="arrow-up-right" /></button>
         <button @click="navigate({ action: 'navigate_section', target: 'contato' })">
           Contato
           <Icon name="arrow-up-right" />
