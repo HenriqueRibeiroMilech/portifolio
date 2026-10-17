@@ -53,4 +53,4 @@ npm test
 npm run build
 ```
 
-Os testes cobrem perfil, privacidade, validação de entrada e ações, destinos inválidos, limites e ausência de chave. Não fazem chamadas nem simulam respostas do LLM. Respostas reais, aderência factual e erros do provedor precisam ser conferidos com uma chave válida. No navegador, foram verificados desktop/celular, mascote 3D, modo leve, navegação, destaque, retorno à leitura e falta de credencial.
+Os testes automatizados cobrem perfil, certificados, privacidade, validação de entrada e ações, destinos inválidos, limites e ausência de chave. Não fazem chamadas nem simulam respostas do LLM. No navegador, foram verificados desktop/celular, mascote 3D, modo leve, navegação entre abas e retorno à leitura. Também foram feitas duas chamadas reais: consulta dos certificados com navegação automática e uma pergunta sobre experiência não cadastrada, que a IA informou não constar no portfólio.

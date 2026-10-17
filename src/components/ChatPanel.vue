@@ -28,11 +28,15 @@ const suggestions = [
 ]
 let controller, stateTimeout
 
-watch(() => props.request, async request => {
-  if (!request?.text) return
-  await nextTick()
-  send(request.text)
-}, { immediate: true })
+watch(
+  () => props.request,
+  async (request) => {
+    if (!request?.text) return
+    await nextTick()
+    send(request.text)
+  },
+  { immediate: true },
+)
 
 watch(
   () => props.open,
@@ -174,7 +178,10 @@ onBeforeUnmount(() => {
     >
       <div class="chat-welcome">
         <p>Sou o Bit, o assistente de IA do Henrique.</p>
-        <p>Pergunte sobre experiência, projetos ou certificados. Além de responder, posso mostrar a seção relacionada.</p>
+        <p>
+          Pergunte sobre experiência, projetos ou certificados. Além de responder, posso mostrar a
+          seção relacionada.
+        </p>
       </div>
       <div v-if="!messages.length" class="chat-suggestions">
         <button
@@ -193,7 +200,10 @@ onBeforeUnmount(() => {
           Experiência
           <Icon name="arrow-up-right" />
         </button>
-        <button @click="navigate({ action: 'navigate_section', target: 'certificados' })">Certificados <Icon name="arrow-up-right" /></button>
+        <button @click="navigate({ action: 'navigate_section', target: 'certificados' })">
+          Certificados
+          <Icon name="arrow-up-right" />
+        </button>
         <button @click="navigate({ action: 'navigate_section', target: 'contato' })">
           Contato
           <Icon name="arrow-up-right" />
@@ -559,6 +569,9 @@ onBeforeUnmount(() => {
   }
 }
 @media (max-width: 600px) {
+  .chat-form textarea {
+    font-size: 16px;
+  }
   .chat-panel {
     width: calc(100% - 16px);
     right: 8px;

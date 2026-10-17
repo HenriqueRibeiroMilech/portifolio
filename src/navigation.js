@@ -1,4 +1,12 @@
-export const sections = ['inicio', 'assistente', 'sobre', 'experiencia', 'habilidades', 'formacao', 'contato']
+export const sections = [
+  'inicio',
+  'assistente',
+  'sobre',
+  'experiencia',
+  'habilidades',
+  'formacao',
+  'contato',
+]
 
 export function navigationTarget(reply, profile) {
   if (!reply || typeof reply.target !== 'string') return null

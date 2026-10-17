@@ -50,9 +50,21 @@ test('none, missing and arbitrary actions never navigate', () => {
 })
 
 test('the assistant and certificate page are valid destinations', () => {
-  assert.equal(navigationTarget({ action: 'navigate_section', target: 'assistente' }, profile), 'assistente')
-  assert.equal(navigationTarget({ action: 'navigate_section', target: 'certificados' }, profile), 'certificados')
-  assert.equal(navigationTarget({ action: 'navigate_section', target: 'certificados' }, { ...profile, certifications: [] }), null)
+  assert.equal(
+    navigationTarget({ action: 'navigate_section', target: 'assistente' }, profile),
+    'assistente',
+  )
+  assert.equal(
+    navigationTarget({ action: 'navigate_section', target: 'certificados' }, profile),
+    'certificados',
+  )
+  assert.equal(
+    navigationTarget(
+      { action: 'navigate_section', target: 'certificados' },
+      { ...profile, certifications: [] },
+    ),
+    null,
+  )
 })
 
 test('an empty project list removes project destinations', () => {

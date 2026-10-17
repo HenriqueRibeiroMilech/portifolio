@@ -43,15 +43,25 @@ test('the real Vue page renders the profile without the chat or WebGL', async ()
     assert.ok(!html.includes('github.com'))
     assert.ok(html.includes('Testar assistente de IA'))
     assert.ok(html.includes('Projetista CNC'))
-    for (const removed of ['h.milech', 'Ideias que', 'Arte de Gato', 'Também passaram por aqui', 'da serra para a web']) {
+    for (const removed of [
+      'h.milech',
+      'Ideias que',
+      'Arte de Gato',
+      'Também passaram por aqui',
+      'da serra para a web',
+    ]) {
       assert.ok(!html.includes(removed), removed)
     }
     const { default: Certificates } = await vite.ssrLoadModule('/src/components/Certificates.vue')
-    const gallery = await renderToString(createSSRApp(Certificates, { certificates: profile.certifications }))
+    const gallery = await renderToString(
+      createSSRApp(Certificates, { certificates: profile.certifications }),
+    )
     for (const certificate of profile.certifications) {
       assert.ok(gallery.includes(certificate.image))
       assert.ok(gallery.includes(certificate.date))
-      assert.ok(existsSync(new URL(`../public${decodeURIComponent(certificate.image)}`, import.meta.url)))
+      assert.ok(
+        existsSync(new URL(`../public${decodeURIComponent(certificate.image)}`, import.meta.url)),
+      )
     }
   } finally {
     await vite.close()
