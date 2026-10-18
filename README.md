@@ -35,9 +35,9 @@ Tudo está em `content/profile.json`, usado pelo Vue e pelo Flask. Para adiciona
 
 Recompile depois de mudar conteúdo em produção. O servidor lê o JSON a cada chamada; o frontend também inclui uma cópia no build para funcionar sem a API. Os arquivos brutos do LinkedIn não são publicados nem versionados.
 
-Os certificados estão em uma aba própria (`#certificados`). Para acrescentar um, edite `certifications` no JSON com título, emissor, data, descrição e caminho da imagem em `public/`.
+Os certificados ficam na página principal, entre Formação e Contato (`#certificados`). Para acrescentar um, edite `certifications` no JSON com título, emissor, data, descrição e caminho da imagem em `public/`.
 
-Ainda faltam GitHub, projetos pessoais e imagens/demos públicas. O DigitalJost é um trabalho corporativo sem link público; a imagem do card é conceitual.
+O FactoryMind AI tem links para o código e a demonstração pública. A ilustração do card é conceitual; uma imagem do projeto pode ser cadastrada no JSON.
 
 ## Como o Bit funciona
 
@@ -53,4 +53,4 @@ npm test
 npm run build
 ```
 
-Os testes automatizados cobrem perfil, certificados, privacidade, validação de entrada e ações, destinos inválidos, limites e ausência de chave. Não fazem chamadas nem simulam respostas do LLM. No navegador, foram verificados desktop/celular, mascote 3D, modo leve, navegação entre abas e retorno à leitura. Também foram feitas duas chamadas reais: consulta dos certificados com navegação automática e uma pergunta sobre experiência não cadastrada, que a IA informou não constar no portfólio.
+Os testes automatizados cobrem perfil, certificados na página principal, links dos projetos, privacidade, validação de entrada e ações, destinos inválidos, limites e ausência de chave. Não fazem chamadas nem simulam respostas do LLM. No navegador, foram verificados desktop/celular, mascote 3D, modo leve, navegação entre seções e retorno à leitura. Também foram feitas duas chamadas reais: consulta dos certificados com navegação automática e uma pergunta sobre experiência não cadastrada, que a IA informou não constar no portfólio.

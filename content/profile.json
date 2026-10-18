@@ -60,16 +60,24 @@
   ],
   "projects": [
     {
-      "id": "digitaljost",
-      "name": "DigitalJost",
-      "category": "Aplicação corporativa",
-      "organization": "JOST Brasil",
-      "description": "Desenvolvimento, manutenção e evolução de uma aplicação corporativa. Meu trabalho inclui modernização da arquitetura, novas funcionalidades e melhorias na organização e escalabilidade do sistema.",
-      "role": "Desenvolvimento e modernização de sistemas",
-      "technologies": ["Python", "Flask", "Vue.js", "TypeScript", "SQL Server"],
+      "id": "factorymind-ai",
+      "name": "FactoryMind AI",
+      "category": "Machine Learning & IA generativa",
+      "organization": "Projeto de estudo",
+      "description": "Aplicação para análise de ocorrências industriais que combina machine learning e IA generativa. Classifica relatos, consulta procedimentos e gera relatórios com fontes. Inclui um modelo Random Forest treinado no AI4I 2020 para avaliar condições de equipamentos, com revisão humana e histórico das análises.",
+      "role": "Desenvolvimento full stack e integração de IA",
+      "technologies": [
+        "Python",
+        "Flask",
+        "Vue.js",
+        "Scikit-learn",
+        "Random Forest",
+        "OpenAI",
+        "SQLite"
+      ],
       "image": null,
-      "repository": null,
-      "demo": null
+      "repository": "https://github.com/HenriqueRibeiroMilech/factorymind-ai/tree/main",
+      "demo": "https://factorymind-ai-gbuc.onrender.com/"
     }
   ],
   "skills": [

@@ -380,8 +380,8 @@ em {
 }
 .location-sticker {
   position: absolute;
-  bottom: 60px;
-  left: -6px;
+  top: 18px;
+  left: 18px;
   z-index: 4;
   background: var(--lime);
   border: 1px solid #b6cb72;
@@ -630,6 +630,8 @@ h2 em {
 }
 .art-bottom {
   display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
   align-items: flex-end;
   justify-content: space-between;
   position: relative;
@@ -717,13 +719,6 @@ h2 em {
 .private-project svg {
   width: 12px;
   height: 12px;
-}
-.project-footnote {
-  font-size: 9px;
-  color: #626e55;
-  margin-top: 17px;
-  max-width: 580px;
-  line-height: 1.8;
 }
 .project-art.has-image {
   padding: 0;
@@ -1229,15 +1224,10 @@ h2 em {
   font-size: 11px;
   margin-top: 5px;
 }
-.certificate-page {
-  padding-block: 55px 90px;
-  min-height: 70vh;
+.certificate-section {
+  border-top: 1px solid var(--line);
 }
-.certificate-back {
-  font-size: 11px;
-  margin-bottom: 45px;
-}
-.certificate-page h1 {
+.certificate-section h2 {
   font-size: clamp(46px, 5vw, 72px);
   letter-spacing: -0.055em;
 }
@@ -1300,7 +1290,7 @@ h2 em {
   color: #5b7139;
   margin-bottom: 12px;
 }
-.certificate-content h2 {
+.certificate-content h3 {
   font-size: 21px;
   line-height: 1.35;
   letter-spacing: -0.035em;
@@ -1412,8 +1402,8 @@ h2 em {
   }
   .location-sticker {
     font-size: 10px;
-    left: -5px;
-    bottom: 40px;
+    left: 14px;
+    top: 14px;
     padding: 12px;
   }
   .hero-actions {
@@ -1530,10 +1520,6 @@ h2 em {
     right: -8px;
     top: 20px;
     font-size: 110px;
-  }
-  .location-sticker {
-    left: -12px;
-    bottom: 36px;
   }
   .tech-strip .strip-label {
     font-size: 7px;
@@ -1731,8 +1717,6 @@ h2 em {
     font-size: 115px;
   }
   .location-sticker {
-    bottom: 32px;
-    left: 0;
     font-size: 10px;
     padding: 12px 16px;
   }
@@ -1859,9 +1843,6 @@ h2 em {
   }
   .project-info .tags li {
     font-size: 9px;
-  }
-  .project-footnote {
-    font-size: 8px;
   }
   .job {
     grid-template-columns: 1fr;
@@ -2065,20 +2046,14 @@ h2 em {
     grid-template-columns: 1fr;
     gap: 25px;
   }
-  .certificate-page {
-    padding-block: 30px 55px;
-  }
-  .certificate-page .section-heading {
+  .certificate-section .section-heading {
     flex-direction: column;
     gap: 18px;
   }
-  .certificate-page .section-heading > p {
+  .certificate-section .section-heading > p {
     padding-top: 0;
     max-width: none;
     font-size: 12px;
-  }
-  .certificate-back {
-    margin-bottom: 35px;
   }
   .certificate-image {
     height: 260px;

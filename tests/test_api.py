@@ -75,14 +75,15 @@ class ApiTests(unittest.TestCase):
 class ActionTests(unittest.TestCase):
     def test_valid_sections_and_project(self):
         for action, target in [('navigate_section', 'experiencia'), ('navigate_section', 'certificados'),
-                               ('navigate_section', 'assistente'), ('highlight_project', 'projeto-digitaljost')]:
+                               ('navigate_section', 'assistente'), ('highlight_project', 'projeto-factorymind-ai')]:
             reply = Reply(message='Veja esta parte.', action=action, target=target)
             self.assertEqual(validate_action(reply, PROFILE), reply)
 
     def test_arbitrary_targets_are_removed(self):
         for action, target in [('navigate_section', 'body'), ('navigate_section', 'https://example.com'),
                                ('navigate_section', '#contato'), ('highlight_project', 'contato'),
-                               ('highlight_project', 'projeto-inventado'), ('none', 'contato')]:
+                               ('highlight_project', 'projeto-inventado'),
+                               ('highlight_project', 'projeto-digitaljost'), ('none', 'contato')]:
             result = validate_action(Reply(message='Resposta.', action=action, target=target), PROFILE)
             self.assertEqual(result.action, 'none')
             self.assertIsNone(result.target)
@@ -91,7 +92,7 @@ class ActionTests(unittest.TestCase):
         result = validate_action(Reply(message='Resposta.', action='navigate_section', target='projetos'), {**PROFILE, 'projects': []})
         self.assertEqual(result.action, 'none')
 
-    def test_certificate_page_is_unavailable_without_certificates(self):
+    def test_certificate_section_is_unavailable_without_certificates(self):
         result = validate_action(Reply(message='Resposta.', action='navigate_section', target='certificados'), {**PROFILE, 'certifications': []})
         self.assertEqual(result.action, 'none')
 

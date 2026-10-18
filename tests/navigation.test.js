@@ -24,11 +24,11 @@ test('only known sections can be navigation targets', () => {
 
 test('project highlights require an existing project and the correct action', () => {
   assert.equal(
-    navigationTarget({ action: 'highlight_project', target: 'projeto-digitaljost' }, profile),
-    'projeto-digitaljost',
+    navigationTarget({ action: 'highlight_project', target: 'projeto-factorymind-ai' }, profile),
+    'projeto-factorymind-ai',
   )
   assert.equal(
-    navigationTarget({ action: 'navigate_section', target: 'projeto-digitaljost' }, profile),
+    navigationTarget({ action: 'navigate_section', target: 'projeto-factorymind-ai' }, profile),
     null,
   )
   assert.equal(
@@ -36,6 +36,10 @@ test('project highlights require an existing project and the correct action', ()
     null,
   )
   assert.equal(navigationTarget({ action: 'highlight_project', target: 'contato' }, profile), null)
+  assert.equal(
+    navigationTarget({ action: 'highlight_project', target: 'projeto-digitaljost' }, profile),
+    null,
+  )
 })
 
 test('none, missing and arbitrary actions never navigate', () => {
@@ -49,7 +53,7 @@ test('none, missing and arbitrary actions never navigate', () => {
   }
 })
 
-test('the assistant and certificate page are valid destinations', () => {
+test('the assistant and certificates are valid section destinations', () => {
   assert.equal(
     navigationTarget({ action: 'navigate_section', target: 'assistente' }, profile),
     'assistente',
@@ -71,7 +75,7 @@ test('an empty project list removes project destinations', () => {
   const empty = { ...profile, projects: [] }
   assert.equal(navigationTarget({ action: 'navigate_section', target: 'projetos' }, empty), null)
   assert.equal(
-    navigationTarget({ action: 'highlight_project', target: 'projeto-digitaljost' }, empty),
+    navigationTarget({ action: 'highlight_project', target: 'projeto-factorymind-ai' }, empty),
     null,
   )
 })

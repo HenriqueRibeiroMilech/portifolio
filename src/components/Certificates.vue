@@ -6,18 +6,14 @@ defineProps({ certificates: Array })
 <template>
   <section
     id="certificados"
-    class="certificate-page wrap"
+    class="section certificate-section wrap"
     aria-labelledby="certificates-title"
     tabindex="-1"
   >
-    <a class="text-link certificate-back" href="#inicio">
-      <Icon name="back" />
-      Voltar ao portfólio
-    </a>
     <div class="section-heading">
       <div>
-        <p class="eyebrow">FORMAÇÃO COMPLEMENTAR</p>
-        <h1 id="certificates-title">Certificados</h1>
+        <p class="eyebrow">06 / CERTIFICADOS</p>
+        <h2 id="certificates-title">Certificados</h2>
       </div>
       <p>
         Machine Learning, inteligência artificial
@@ -46,7 +42,7 @@ defineProps({ certificates: Array })
         </a>
         <div class="certificate-content">
           <p class="eyebrow">{{ certificate.category }}</p>
-          <h2>{{ certificate.name }}</h2>
+          <h3>{{ certificate.name }}</h3>
           <p class="certificate-issuer">{{ certificate.issuer }}</p>
           <p class="certificate-description">{{ certificate.description }}</p>
           <ul class="tags" aria-label="Conteúdo do curso">

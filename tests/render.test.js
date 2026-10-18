@@ -23,6 +23,7 @@ test('the real Vue page renders the profile without the chat or WebGL', async ()
       'experiencia',
       'habilidades',
       'formacao',
+      'certificados',
       'contato',
     ]) {
       assert.ok(html.includes(`id="${section}"`), section)
@@ -30,6 +31,7 @@ test('the real Vue page renders the profile without the chat or WebGL', async ()
     for (const content of [
       'Henrique Milech',
       'DigitalJost',
+      'FactoryMind AI',
       'JOST Brasil',
       'Trailblazer',
       'Engenharia de Software',
@@ -40,7 +42,13 @@ test('the real Vue page renders the profile without the chat or WebGL', async ()
     assert.ok(html.includes('/henrique.jpg'))
     assert.ok(!html.includes('<canvas'))
     assert.ok(!html.includes('id="bit-chat"'))
-    assert.ok(!html.includes('github.com'))
+    const project = profile.projects.find((project) => project.id === 'factorymind-ai')
+    assert.ok(html.includes(`href="${project.repository}"`))
+    assert.ok(html.includes(`href="${project.demo}"`))
+    assert.ok(html.includes('id="projeto-factorymind-ai"'))
+    assert.ok(!html.includes('id="projeto-digitaljost"'))
+    assert.ok(html.indexOf('id="formacao"') < html.indexOf('id="certificados"'))
+    assert.ok(html.indexOf('id="certificados"') < html.indexOf('id="contato"'))
     assert.ok(html.includes('Testar assistente de IA'))
     assert.ok(html.includes('Projetista CNC'))
     for (const removed of [
@@ -52,13 +60,9 @@ test('the real Vue page renders the profile without the chat or WebGL', async ()
     ]) {
       assert.ok(!html.includes(removed), removed)
     }
-    const { default: Certificates } = await vite.ssrLoadModule('/src/components/Certificates.vue')
-    const gallery = await renderToString(
-      createSSRApp(Certificates, { certificates: profile.certifications }),
-    )
     for (const certificate of profile.certifications) {
-      assert.ok(gallery.includes(certificate.image))
-      assert.ok(gallery.includes(certificate.date))
+      assert.ok(html.includes(certificate.image))
+      assert.ok(html.includes(certificate.date))
       assert.ok(
         existsSync(new URL(`../public${decodeURIComponent(certificate.image)}`, import.meta.url)),
       )
