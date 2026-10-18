@@ -227,7 +227,7 @@ onMounted(async () => {
           <div class="hero-actions">
             <button class="button button-dark" @click="openChat">
               Testar assistente de IA
-              <Icon name="spark" />
+              <Icon name="chat" />
             </button>
             <a class="text-link" href="#experiencia">
               Ver experiência
@@ -275,7 +275,9 @@ onMounted(async () => {
       >
         <div ref="mascotAnchor" class="ai-character">
           <Mascot v-if="mascotVisible && !chatOpen" />
-          <span v-else class="ai-preview-symbol" aria-hidden="true"><Icon name="spark" /></span>
+          <span v-else class="ai-preview-symbol" aria-hidden="true">
+            <span class="bit-icon"></span>
+          </span>
           <span class="character-caption">BIT · ASSISTENTE DE IA</span>
         </div>
         <div class="ai-invitation-copy">
@@ -672,7 +674,7 @@ onMounted(async () => {
     </span>
     <span>
       Converse com a IA
-      <span class="launcher-star">✳</span>
+      <span class="launcher-dot" aria-hidden="true"></span>
     </span>
   </button>
   <ChatPanel

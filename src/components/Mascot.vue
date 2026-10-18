@@ -36,7 +36,7 @@ onMounted(() => {
   try {
     scene = new THREE.Scene()
     camera = new THREE.PerspectiveCamera(35, 1, 0.1, 30)
-    camera.position.set(0.7, 0.5, 6.6)
+    camera.position.set(0.8, 0.55, 5.8)
     camera.lookAt(0, 0, 0)
     renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -53,44 +53,59 @@ onMounted(() => {
       cancelAnimationFrame(frame)
     })
 
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x587143, 2))
-    const key = new THREE.DirectionalLight(0xfff7da, 3.1)
+    scene.add(new THREE.HemisphereLight(0xeef6ff, 0x43534b, 2.4))
+    const key = new THREE.DirectionalLight(0xffffff, 3.5)
     key.position.set(-3, 4, 5)
     scene.add(key)
     const rim = new THREE.DirectionalLight(0xc5e7ff, 3)
     rim.position.set(3, 2, -4)
     scene.add(rim)
 
-    const lime = new THREE.MeshPhysicalMaterial({
-      color: 0xc7e969,
-      roughness: 0.3,
-      metalness: 0.08,
-      clearcoat: 0.8,
-      clearcoatRoughness: 0.15,
+    const graphite = new THREE.MeshStandardMaterial({
+      color: 0x242f32,
+      metalness: 0.65,
+      roughness: 0.32,
     })
-    const ink = new THREE.MeshStandardMaterial({ color: 0x263b2c, roughness: 0.22 })
-    const cream = new THREE.MeshStandardMaterial({ color: 0xfff4d5, roughness: 0.28 })
-    const peach = new THREE.MeshStandardMaterial({ color: 0xf5a87a, roughness: 0.45 })
-    const gold = new THREE.MeshStandardMaterial({
-      color: 0xc6aa68,
-      metalness: 0.55,
+    const titanium = new THREE.MeshStandardMaterial({
+      color: 0x9caeae,
+      metalness: 0.7,
       roughness: 0.3,
+    })
+    const dark = new THREE.MeshStandardMaterial({
+      color: 0x10191d,
+      metalness: 0.4,
+      roughness: 0.25,
+    })
+    const glass = new THREE.MeshPhysicalMaterial({
+      color: 0x326678,
+      metalness: 0.5,
+      roughness: 0.12,
+      clearcoat: 1,
+    })
+    const lime = new THREE.MeshStandardMaterial({
+      color: 0xc9ed62,
+      emissive: 0x9ecb3b,
+      emissiveIntensity: 0.7,
+    })
+    const thrustMaterial = new THREE.MeshBasicMaterial({
+      color: 0x9fe1e6,
+      transparent: true,
+      opacity: 0.35,
+      depthWrite: false,
     })
 
-    function starGeometry(radius, depth, segments = 48) {
-      const geometry = new THREE.SphereGeometry(radius, segments, 32)
-      const vertices = geometry.attributes.position
-      for (let i = 0; i < vertices.count; i++) {
-        const x = vertices.getX(i),
-          y = vertices.getY(i),
-          z = vertices.getZ(i)
-        const angle = Math.atan2(y, x)
-        const edge = Math.hypot(x, y) / radius
-        const lobes = 0.86 + 0.22 * Math.cos(5 * angle - Math.PI / 2) * edge
-        vertices.setXYZ(i, x * lobes, y * lobes, z * depth)
-      }
-      geometry.computeVertexNormals()
-      return geometry
+    function box(width, height, depth, material, parent, x, y, z) {
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(width, height, depth), material)
+      mesh.position.set(x, y, z)
+      parent.add(mesh)
+      return mesh
+    }
+
+    function cylinder(radius, height, material, parent, x, y, z) {
+      const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, height, 32), material)
+      mesh.position.set(x, y, z)
+      parent.add(mesh)
+      return mesh
     }
 
     function sphere(radius, material, parent, x, y, z, scale = [1, 1, 1]) {
@@ -103,33 +118,80 @@ onMounted(() => {
 
     const character = new THREE.Group()
     scene.add(character)
-    const body = new THREE.Mesh(starGeometry(1.12, 0.57), lime)
-    character.add(body)
 
-    const face = new THREE.Group()
-    face.position.set(0, -0.02, 0.62)
-    character.add(face)
-    const eyes = [-0.27, 0.27].map((x) => {
-      const eye = sphere(0.105, ink, face, x, 0.12, 0.015, [0.85, 1.45, 0.5])
-      sphere(0.025, cream, eye, -0.024, 0.043, 0.09)
-      return eye
+    const shell = new THREE.Shape()
+    shell.moveTo(-0.65, 0.62)
+    shell.lineTo(0.65, 0.62)
+    shell.quadraticCurveTo(0.78, 0.62, 0.87, 0.48)
+    shell.lineTo(1, 0.25)
+    shell.lineTo(1, -0.25)
+    shell.lineTo(0.78, -0.52)
+    shell.quadraticCurveTo(0.7, -0.62, 0.57, -0.62)
+    shell.lineTo(-0.57, -0.62)
+    shell.quadraticCurveTo(-0.7, -0.62, -0.78, -0.52)
+    shell.lineTo(-1, -0.25)
+    shell.lineTo(-1, 0.25)
+    shell.lineTo(-0.87, 0.48)
+    shell.quadraticCurveTo(-0.78, 0.62, -0.65, 0.62)
+    const bodyGeometry = new THREE.ExtrudeGeometry(shell, {
+      depth: 0.65,
+      bevelEnabled: true,
+      bevelThickness: 0.06,
+      bevelSize: 0.06,
+      bevelSegments: 3,
+      steps: 1,
     })
-    for (const x of [-0.44, 0.44]) sphere(0.105, peach, face, x, -0.16, -0.02, [1.2, 0.5, 0.2])
-    const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.135, 0.023, 8, 24, Math.PI), ink)
-    mouth.rotation.z = Math.PI
-    mouth.position.set(0, -0.12, 0.065)
-    face.add(mouth)
+    bodyGeometry.translate(0, 0, -0.325)
+    character.add(new THREE.Mesh(bodyGeometry, graphite))
 
-    const orbit = new THREE.Group()
-    orbit.rotation.set(0.85, -0.3, -0.2)
-    character.add(orbit)
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(1.49, 0.012, 8, 96), gold)
-    orbit.add(ring)
-    const moons = [cream, peach].map((material, index) => {
-      const moon = new THREE.Mesh(starGeometry(index ? 0.13 : 0.23, 0.8, 24), material)
-      orbit.add(moon)
-      return moon
-    })
+    box(1.22, 0.065, 0.5, titanium, character, 0, 0.66, -0.04)
+    box(0.44, 0.025, 0.12, lime, character, 0.25, 0.7, 0.07)
+    for (const side of [-1, 1]) {
+      for (const y of [-0.2, 0, 0.2])
+        box(0.035, 0.07, 0.25, dark, character, side * 1.055, y, -0.04)
+      for (const y of [-0.4, 0.4])
+        sphere(0.035, titanium, character, side * 0.65, y, 0.4, [1, 1, 0.45])
+    }
+
+    const lens = new THREE.Group()
+    lens.position.set(0, 0.04, 0.4)
+    character.add(lens)
+    const housing = cylinder(0.43, 0.16, titanium, lens, 0, 0, 0)
+    housing.rotation.x = Math.PI / 2
+    const bezel = cylinder(0.35, 0.18, dark, lens, 0, 0, 0.07)
+    bezel.rotation.x = Math.PI / 2
+    sphere(0.29, glass, lens, 0, 0, 0.15, [1, 1, 0.43])
+    const iris = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.022, 8, 40), lime)
+    iris.position.z = 0.27
+    lens.add(iris)
+    sphere(0.105, dark, lens, 0, 0, 0.27, [1, 1, 0.25])
+    sphere(0.035, titanium, lens, -0.09, 0.09, 0.28, [1, 1, 0.3])
+    const scan = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.009, 6, 32, Math.PI * 0.65), lime)
+    scan.position.z = 0.24
+    lens.add(scan)
+
+    const indicators = [-0.13, 0, 0.13].map((x) =>
+      box(0.065, 0.065, 0.025, lime, character, x, -0.49, 0.39),
+    )
+    const plumes = []
+    for (const side of [-1, 1]) {
+      const engine = new THREE.Group()
+      engine.position.set(side * 1.2, -0.17, -0.06)
+      engine.rotation.z = side * 0.17
+      character.add(engine)
+      box(0.28, 0.08, 0.25, titanium, engine, -side * 0.1, 0, 0)
+      cylinder(0.21, 0.5, titanium, engine, side * 0.1, -0.1, 0)
+      cylinder(0.22, 0.11, graphite, engine, side * 0.1, 0.13, 0)
+      cylinder(0.14, 0.1, dark, engine, side * 0.1, -0.39, 0)
+      cylinder(0.11, 0.025, lime, engine, side * 0.1, -0.45, 0)
+      const plume = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.32, 12), thrustMaterial)
+      plume.rotation.z = Math.PI
+      plume.position.set(side * 0.1, -0.62, 0)
+      engine.add(plume)
+      plumes.push(plume)
+    }
+    cylinder(0.025, 0.27, titanium, character, -0.5, 0.82, -0.12)
+    box(0.15, 0.045, 0.07, lime, character, -0.5, 0.97, -0.12)
 
     const shadow = new THREE.Mesh(
       new THREE.CircleGeometry(0.8, 40),
@@ -166,27 +228,19 @@ onMounted(() => {
       const motion = still ? 0 : t
 
       character.position.y = Math.sin(motion * 2) * 0.09
-      character.rotation.y = still ? -0.1 : -0.1 + pointerX * 0.45
-      character.rotation.x = still ? 0 : pointerY * 0.15
-      character.rotation.z = still
-        ? -0.08
-        : happy
-          ? Math.sin(t * 8) * 0.18
-          : Math.sin(t * 1.4) * 0.06 - 0.08
-      const squash = still ? 1 : happy ? 1 + Math.sin(t * 8) * 0.05 : 1
-      body.scale.set(1 / squash, squash, 1)
-      const blink = !still && Math.sin(t * 1.2) > 0.994
-      for (const [index, eye] of eyes.entries()) {
-        eye.scale.y = blink ? 0.16 : thinking && !still ? 1 + Math.sin(t * 4 + index) * 0.3 : 1.45
-        eye.position.x = (index ? 0.27 : -0.27) + (still ? 0 : pointerX * 0.08)
-        eye.position.y = thinking && !still ? 0.19 : 0.12
-      }
-      mouth.scale.y = speaking && !still ? 1 + Math.sin(t * 10) * 0.3 : 1
-      orbit.rotation.z = -0.2 + motion * (thinking ? 0.8 : 0.2)
-      moons.forEach((moon, index) => {
-        const angle = (still ? 0.65 : motion * 0.35 + 0.65) + index * 2.8
-        moon.position.set(Math.cos(angle) * 1.49, Math.sin(angle) * 1.49, 0)
-        moon.rotation.z = -angle
+      character.rotation.y = still ? -0.13 : -0.13 + pointerX * 0.3
+      character.rotation.x = still ? 0 : pointerY * 0.12
+      character.rotation.z = still ? 0 : happy ? Math.sin(t * 7) * 0.12 : Math.sin(t * 1.4) * 0.035
+      lens.rotation.y = still ? 0 : thinking ? Math.sin(t * 2) * 0.18 : pointerX * 0.4
+      lens.rotation.x = still ? 0 : -pointerY * 0.25
+      scan.rotation.z = motion * (thinking ? 2.5 : 0.3)
+      const aperture = !still && happy ? 1 + Math.sin(t * 8) * 0.08 : 1
+      iris.scale.setScalar(aperture)
+      indicators.forEach((indicator, index) => {
+        indicator.scale.y = speaking && !still ? 1.2 + Math.sin(t * 10 + index * 1.5) * 0.7 : 1
+      })
+      plumes.forEach((plume, index) => {
+        plume.scale.y = still ? 1 : 1 + Math.sin(t * 14 + index) * 0.15
       })
       shadow.scale.x = 1.15 - Math.sin(motion * 2) * 0.05
       renderer.render(scene, camera)

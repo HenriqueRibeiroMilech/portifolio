@@ -14,6 +14,7 @@ const paths = {
   window: 'M3 3h18v18H3ZM3 8h18M7 5.5h.1m3 0h.1',
   asterisk: 'M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7',
   spark: 'm12 2 3 7 7 3-7 3-3 7-3-7-7-3 7-3Z',
+  chat: 'M4 4h16v12H9l-5 4ZM8 8h8m-8 4h5',
   lock: 'M5 10h14v11H5Zm3 0V6a4 4 0 0 1 8 0v4m-4 4v3',
   send: 'm3 3 18 9-18 9 4-9Zm4 9h14',
   back: 'M9 4 3 10l6 6M3 10h11a6 6 0 0 1 0 12',
