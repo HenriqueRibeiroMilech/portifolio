@@ -276,7 +276,10 @@ onMounted(async () => {
         <div ref="mascotAnchor" class="ai-character">
           <Mascot v-if="mascotVisible && !chatOpen" />
           <span v-else class="ai-preview-symbol" aria-hidden="true">
-            <span class="bit-icon"></span>
+            <span class="bit-icon">
+              <i></i>
+              <i></i>
+            </span>
           </span>
           <span class="character-caption">BIT · ASSISTENTE DE IA</span>
         </div>

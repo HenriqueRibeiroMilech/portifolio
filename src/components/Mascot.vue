@@ -5,19 +5,19 @@ import * as THREE from 'three'
 const props = defineProps({ state: { type: String, default: 'idle' }, paused: Boolean })
 const stage = ref(null)
 const failed = ref(false)
-const excited = ref(false)
-let renderer, scene, camera, resizeObserver, frame, reactionTimer
-let lastFrame = 0
+const greeting = ref(false)
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+let renderer, scene, observer, frame, reactionTimer
 let pointerX = 0
 let pointerY = 0
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+let lastFrame = 0
 
 function react() {
-  excited.value = true
+  greeting.value = true
   clearTimeout(reactionTimer)
   reactionTimer = setTimeout(() => {
-    excited.value = false
-  }, 1500)
+    greeting.value = false
+  }, 1200)
 }
 
 function followPointer(event) {
@@ -35,8 +35,8 @@ function resetPointer() {
 onMounted(() => {
   try {
     scene = new THREE.Scene()
-    camera = new THREE.PerspectiveCamera(35, 1, 0.1, 30)
-    camera.position.set(0.8, 0.55, 5.8)
+    const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 20)
+    camera.position.set(0.15, 0.1, 5.1)
     camera.lookAt(0, 0, 0)
     renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -44,7 +44,6 @@ onMounted(() => {
       powerPreference: 'low-power',
     })
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
-    renderer.setClearColor(0x000000, 0)
     stage.value.appendChild(renderer.domElement)
     renderer.domElement.setAttribute('aria-hidden', 'true')
     renderer.domElement.addEventListener('webglcontextlost', (event) => {
@@ -53,196 +52,105 @@ onMounted(() => {
       cancelAnimationFrame(frame)
     })
 
-    scene.add(new THREE.HemisphereLight(0xeef6ff, 0x43534b, 2.4))
-    const key = new THREE.DirectionalLight(0xffffff, 3.5)
-    key.position.set(-3, 4, 5)
-    scene.add(key)
-    const rim = new THREE.DirectionalLight(0xc5e7ff, 3)
-    rim.position.set(3, 2, -4)
+    scene.add(new THREE.HemisphereLight(0xf5f5ee, 0x3c4d40, 2.1))
+    const light = new THREE.DirectionalLight(0xfff9ee, 3)
+    light.position.set(-3, 4, 5)
+    scene.add(light)
+    const rim = new THREE.DirectionalLight(0xdce9e2, 2.6)
+    rim.position.set(3, 2, -3)
     scene.add(rim)
-
-    const graphite = new THREE.MeshStandardMaterial({
-      color: 0x242f32,
-      metalness: 0.65,
-      roughness: 0.32,
-    })
-    const titanium = new THREE.MeshStandardMaterial({
-      color: 0x9caeae,
-      metalness: 0.7,
-      roughness: 0.3,
-    })
-    const dark = new THREE.MeshStandardMaterial({
-      color: 0x10191d,
-      metalness: 0.4,
-      roughness: 0.25,
-    })
-    const glass = new THREE.MeshPhysicalMaterial({
-      color: 0x326678,
-      metalness: 0.5,
-      roughness: 0.12,
-      clearcoat: 1,
-    })
-    const lime = new THREE.MeshStandardMaterial({
-      color: 0xc9ed62,
-      emissive: 0x9ecb3b,
-      emissiveIntensity: 0.7,
-    })
-    const thrustMaterial = new THREE.MeshBasicMaterial({
-      color: 0x9fe1e6,
-      transparent: true,
-      opacity: 0.35,
-      depthWrite: false,
-    })
-
-    function box(width, height, depth, material, parent, x, y, z) {
-      const mesh = new THREE.Mesh(new THREE.BoxGeometry(width, height, depth), material)
-      mesh.position.set(x, y, z)
-      parent.add(mesh)
-      return mesh
-    }
-
-    function cylinder(radius, height, material, parent, x, y, z) {
-      const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, height, 32), material)
-      mesh.position.set(x, y, z)
-      parent.add(mesh)
-      return mesh
-    }
-
-    function sphere(radius, material, parent, x, y, z, scale = [1, 1, 1]) {
-      const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 24, 16), material)
-      mesh.position.set(x, y, z)
-      mesh.scale.set(...scale)
-      parent.add(mesh)
-      return mesh
-    }
 
     const character = new THREE.Group()
     scene.add(character)
+    const geometry = new THREE.SphereGeometry(1, 48, 32)
+    const vertices = geometry.attributes.position
+    for (let i = 0; i < vertices.count; i++) {
+      const x = vertices.getX(i),
+        y = vertices.getY(i),
+        z = vertices.getZ(i)
+      vertices.setXYZ(i, x * (1 - y * 0.07), y < -0.65 ? -0.65 + (y + 0.65) * 0.65 : y, z * 0.8)
+    }
+    geometry.computeVertexNormals()
+    const body = new THREE.Mesh(
+      geometry,
+      new THREE.MeshStandardMaterial({ color: 0x303a36, roughness: 0.62, metalness: 0 }),
+    )
+    character.add(body)
 
-    const shell = new THREE.Shape()
-    shell.moveTo(-0.65, 0.62)
-    shell.lineTo(0.65, 0.62)
-    shell.quadraticCurveTo(0.78, 0.62, 0.87, 0.48)
-    shell.lineTo(1, 0.25)
-    shell.lineTo(1, -0.25)
-    shell.lineTo(0.78, -0.52)
-    shell.quadraticCurveTo(0.7, -0.62, 0.57, -0.62)
-    shell.lineTo(-0.57, -0.62)
-    shell.quadraticCurveTo(-0.7, -0.62, -0.78, -0.52)
-    shell.lineTo(-1, -0.25)
-    shell.lineTo(-1, 0.25)
-    shell.lineTo(-0.87, 0.48)
-    shell.quadraticCurveTo(-0.78, 0.62, -0.65, 0.62)
-    const bodyGeometry = new THREE.ExtrudeGeometry(shell, {
-      depth: 0.65,
-      bevelEnabled: true,
-      bevelThickness: 0.06,
-      bevelSize: 0.06,
-      bevelSegments: 3,
-      steps: 1,
+    const face = new THREE.Group()
+    face.position.set(0, 0.1, 0.79)
+    character.add(face)
+    const eyes = [-0.205, 0.205].map((x) => {
+      const eye = new THREE.Mesh(
+        new THREE.CapsuleGeometry(0.052, 0.115, 4, 12),
+        new THREE.MeshBasicMaterial({ color: 0xf5f3eb }),
+      )
+      eye.position.x = x
+      eye.scale.z = 0.45
+      face.add(eye)
+      return eye
     })
-    bodyGeometry.translate(0, 0, -0.325)
-    character.add(new THREE.Mesh(bodyGeometry, graphite))
 
-    box(1.22, 0.065, 0.5, titanium, character, 0, 0.66, -0.04)
-    box(0.44, 0.025, 0.12, lime, character, 0.25, 0.7, 0.07)
-    for (const side of [-1, 1]) {
-      for (const y of [-0.2, 0, 0.2])
-        box(0.035, 0.07, 0.25, dark, character, side * 1.055, y, -0.04)
-      for (const y of [-0.4, 0.4])
-        sphere(0.035, titanium, character, side * 0.65, y, 0.4, [1, 1, 0.45])
+    const canvas = document.createElement('canvas')
+    canvas.width = canvas.height = 64
+    const context = canvas.getContext('2d')
+    if (context) {
+      const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32)
+      gradient.addColorStop(0, 'rgba(15, 25, 18, .2)')
+      gradient.addColorStop(1, 'rgba(15, 25, 18, 0)')
+      context.fillStyle = gradient
+      context.fillRect(0, 0, 64, 64)
+      const shadow = new THREE.Mesh(
+        new THREE.PlaneGeometry(2.4, 1.2),
+        new THREE.MeshBasicMaterial({
+          map: new THREE.CanvasTexture(canvas),
+          transparent: true,
+          depthWrite: false,
+        }),
+      )
+      shadow.rotation.x = -Math.PI / 2
+      shadow.position.y = -1.18
+      scene.add(shadow)
     }
 
-    const lens = new THREE.Group()
-    lens.position.set(0, 0.04, 0.4)
-    character.add(lens)
-    const housing = cylinder(0.43, 0.16, titanium, lens, 0, 0, 0)
-    housing.rotation.x = Math.PI / 2
-    const bezel = cylinder(0.35, 0.18, dark, lens, 0, 0, 0.07)
-    bezel.rotation.x = Math.PI / 2
-    sphere(0.29, glass, lens, 0, 0, 0.15, [1, 1, 0.43])
-    const iris = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.022, 8, 40), lime)
-    iris.position.z = 0.27
-    lens.add(iris)
-    sphere(0.105, dark, lens, 0, 0, 0.27, [1, 1, 0.25])
-    sphere(0.035, titanium, lens, -0.09, 0.09, 0.28, [1, 1, 0.3])
-    const scan = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.009, 6, 32, Math.PI * 0.65), lime)
-    scan.position.z = 0.24
-    lens.add(scan)
-
-    const indicators = [-0.13, 0, 0.13].map((x) =>
-      box(0.065, 0.065, 0.025, lime, character, x, -0.49, 0.39),
-    )
-    const plumes = []
-    for (const side of [-1, 1]) {
-      const engine = new THREE.Group()
-      engine.position.set(side * 1.2, -0.17, -0.06)
-      engine.rotation.z = side * 0.17
-      character.add(engine)
-      box(0.28, 0.08, 0.25, titanium, engine, -side * 0.1, 0, 0)
-      cylinder(0.21, 0.5, titanium, engine, side * 0.1, -0.1, 0)
-      cylinder(0.22, 0.11, graphite, engine, side * 0.1, 0.13, 0)
-      cylinder(0.14, 0.1, dark, engine, side * 0.1, -0.39, 0)
-      cylinder(0.11, 0.025, lime, engine, side * 0.1, -0.45, 0)
-      const plume = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.32, 12), thrustMaterial)
-      plume.rotation.z = Math.PI
-      plume.position.set(side * 0.1, -0.62, 0)
-      engine.add(plume)
-      plumes.push(plume)
-    }
-    cylinder(0.025, 0.27, titanium, character, -0.5, 0.82, -0.12)
-    box(0.15, 0.045, 0.07, lime, character, -0.5, 0.97, -0.12)
-
-    const shadow = new THREE.Mesh(
-      new THREE.CircleGeometry(0.8, 40),
-      new THREE.MeshBasicMaterial({
-        color: 0x1e3323,
-        transparent: true,
-        opacity: 0.1,
-        depthWrite: false,
-      }),
-    )
-    shadow.rotation.x = -Math.PI / 2
-    shadow.position.y = -1.45
-    shadow.scale.set(1.15, 0.5, 1)
-    scene.add(shadow)
-
-    resizeObserver = new ResizeObserver(() => {
+    observer = new ResizeObserver(() => {
       if (!stage.value) return
       const { width, height } = stage.value.getBoundingClientRect()
       camera.aspect = width / Math.max(height, 1)
       camera.updateProjectionMatrix()
       renderer.setSize(width, height)
     })
-    resizeObserver.observe(stage.value)
+    observer.observe(stage.value)
 
     function animate(time) {
       frame = requestAnimationFrame(animate)
-      if (document.hidden || time - lastFrame < 33 || failed.value) return
+      if (document.hidden || failed.value || time - lastFrame < 33) return
       lastFrame = time
       const t = time / 1000
       const still = props.paused || reducedMotion.matches
       const thinking = props.state === 'thinking'
       const speaking = props.state === 'speaking'
-      const happy = props.state === 'success' || excited.value
+      const happy = greeting.value || props.state === 'success'
       const motion = still ? 0 : t
 
-      character.position.y = Math.sin(motion * 2) * 0.09
-      character.rotation.y = still ? -0.13 : -0.13 + pointerX * 0.3
-      character.rotation.x = still ? 0 : pointerY * 0.12
-      character.rotation.z = still ? 0 : happy ? Math.sin(t * 7) * 0.12 : Math.sin(t * 1.4) * 0.035
-      lens.rotation.y = still ? 0 : thinking ? Math.sin(t * 2) * 0.18 : pointerX * 0.4
-      lens.rotation.x = still ? 0 : -pointerY * 0.25
-      scan.rotation.z = motion * (thinking ? 2.5 : 0.3)
-      const aperture = !still && happy ? 1 + Math.sin(t * 8) * 0.08 : 1
-      iris.scale.setScalar(aperture)
-      indicators.forEach((indicator, index) => {
-        indicator.scale.y = speaking && !still ? 1.2 + Math.sin(t * 10 + index * 1.5) * 0.7 : 1
-      })
-      plumes.forEach((plume, index) => {
-        plume.scale.y = still ? 1 : 1 + Math.sin(t * 14 + index) * 0.15
-      })
-      shadow.scale.x = 1.15 - Math.sin(motion * 2) * 0.05
+      character.position.y = Math.sin(motion * 1.6) * 0.035
+      character.rotation.y = still ? -0.04 : -0.04 + pointerX * 0.2
+      character.rotation.z = still ? 0 : happy ? Math.sin(t * 3) * 0.055 : Math.sin(t * 0.9) * 0.015
+      body.scale.y = 1 + Math.sin(motion * 1.6) * 0.008
+      face.position.x = still ? 0 : thinking ? Math.sin(t * 1.4) * 0.045 : pointerX * 0.08
+      face.position.y = 0.1 + (still ? 0 : thinking ? 0.035 : -pointerY * 0.055)
+      const blink = !still && t % 5.5 > 5.36
+      for (const eye of eyes) {
+        eye.scale.y = blink
+          ? 0.12
+          : !still && happy
+            ? 0.72
+            : !still && speaking
+              ? 1 + Math.sin(t * 4) * 0.07
+              : thinking && !still
+                ? 0.85
+                : 1
+      }
       renderer.render(scene, camera)
     }
     animate(0)
@@ -254,9 +162,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
   clearTimeout(reactionTimer)
   cancelAnimationFrame(frame)
-  resizeObserver?.disconnect()
+  observer?.disconnect()
   scene?.traverse((object) => {
     object.geometry?.dispose()
+    object.material?.map?.dispose()
     object.material?.dispose()
   })
   renderer?.dispose()
@@ -285,12 +194,12 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .mascot-stage {
+  display: block;
   width: 100%;
   height: var(--mascot-height, 190px);
   padding: 0;
-  background: transparent;
   border: 0;
-  display: block;
+  background: transparent;
   position: relative;
 }
 .mascot-canvas {
