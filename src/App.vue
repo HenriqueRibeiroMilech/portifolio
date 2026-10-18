@@ -229,10 +229,6 @@ onMounted(async () => {
             height="400"
             fetchpriority="high"
           />
-          <div class="location-sticker">
-            <Icon name="pin" />
-            <span>{{ profile.location }}</span>
-          </div>
           <figcaption>
             <span>{{ profile.role }}</span>
             <span aria-hidden="true">↗</span>
@@ -348,12 +344,24 @@ onMounted(async () => {
           tabindex="-1"
         >
           <div class="project-art" :class="{ 'has-image': project.image }">
-            <img
-              v-if="project.image"
-              :src="project.image"
-              :alt="`Imagem do projeto ${project.name}`"
-              loading="lazy"
-            />
+            <template v-if="project.image">
+              <div class="project-preview-label" aria-hidden="true">
+                <span>{{ project.organization || project.category }}</span>
+                <Icon name="arrow-up-right" />
+              </div>
+              <div class="project-screen">
+                <div class="project-screen-bar" aria-hidden="true">
+                  <i></i>
+                  <i></i>
+                  <i></i>
+                </div>
+                <img :src="project.image" :alt="`Tela do projeto ${project.name}`" loading="lazy" />
+              </div>
+              <div class="project-preview-label" aria-hidden="true">
+                <span>{{ project.category }}</span>
+                <Icon name="asterisk" />
+              </div>
+            </template>
             <template v-else>
               <div class="art-top">
                 <span>{{ project.organization || project.category }}</span>

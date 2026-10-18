@@ -75,7 +75,7 @@
         "OpenAI",
         "SQLite"
       ],
-      "image": null,
+      "image": "/factorymind.png",
       "repository": "https://github.com/HenriqueRibeiroMilech/factorymind-ai/tree/main",
       "demo": "https://factorymind-ai-gbuc.onrender.com/"
     }
